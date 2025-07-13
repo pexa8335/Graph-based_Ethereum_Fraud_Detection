@@ -1,4 +1,3 @@
-
 export interface CovalentTransaction {
   tx_hash?: string;
   block_signed_at: string;
@@ -16,65 +15,71 @@ export interface BalanceItem {
 }
 
 export interface WalletFeatures {
-  index: number;
-  address: string;
-  flag: number; 
+  Index: number;
+  Address?: string; 
+  FLAG: number; 
 
-  timeDiffBetweenFirstAndLastMins: number;
-  avgMinBetweenSentTnx: number;
-  avgMinBetweenReceivedTnx: number;
+  'Time Diff between first and last (Mins)': number;
+  'Avg min between sent tnx': number;
+  'Avg min between received tnx': number;
   
-  sentTnx: number;
-  receivedTnx: number;
-  createdContractsCount: number;
-  uniqueReceivedFromAddresses: number;
-  uniqueSentToAddresses: number;
-  totalTransactions: number;
+  'Sent tnx': number;
+  'Received Tnx': number;
+  'Number of Created Contracts': number;
+  'Unique Received From Addresses': number;
+  'Unique Sent To Addresses': number;
+  'total transactions (including tnx to create contract': number;
+  
+  'min value received': number;
+  'max value received': number;
+  'avg val received': number;
+  'min val sent': number;
+  'max val sent': number;
+  'avg val sent': number;
+  'min value sent to contract': number;
+  'max val sent to contract': number;
+  'avg value sent to contract': number;
+  'total Ether sent': number;
+  'total ether received': number;
+  'total ether sent contracts': number;
+  'total ether balance': number;
 
-  minValueReceived: number;
-  maxValueReceived: number;
-  avgValueReceived: number;
-  minValueSent: number;
-  maxValueSent: number;
-  avgValueSent: number;
-  minValueSentToContract: number;
-  maxValueSentToContract: number;
-  avgValueSentToContract: number;
-  totalEtherSent: number;
-  totalEtherReceived: number;
-  totalEtherSentToContracts: number;
-  totalEtherBalance: number;
-
-  totalErc20Tnxs: number;
-  erc20TotalEtherReceived: number;
-  erc20TotalEtherSent: number;
-  erc20TotalEtherSentContract: number;
-  erc20UniqSentAddr: number;
-  erc20UniqRecAddr: number;
-  erc20UniqSentAddr1: number; 
-  erc20UniqRecContractAddr: number;
-  erc20AvgTimeBetweenSentTnx: number;
-  erc20AvgTimeBetweenRecTnx: number;
-  erc20AvgTimeBetweenRec2Tnx: number;
-  erc20AvgTimeBetweenContractTnx: number;
-  erc20MinValueRec: number;
-  erc20MaxValueRec: number;
-  erc20AvgValueRec: number;
-  erc20MinValueSent: number;
-  erc20MaxValueSent: number;
-  erc20AvgValueSent: number;
-  erc20MinValueSentContract: number;
-  erc20MaxValueSentContract: number;
-  erc20AvgValueSentContract: number;
-  erc20UniqSentTokenName: number;
-  erc20UniqRecTokenName: number;
-  erc20MostSentTokenType: string | null;
-  erc20MostRecTokenType: string | null;
+  'Total ERC20 tnxs': number;
+  'ERC20 total Ether received': number;
+  'ERC20 total ether sent': number;
+  'ERC20 total Ether sent contract': number;
+  'ERC20 uniq sent addr': number;
+  'ERC20 uniq rec addr': number;
+  'ERC20 uniq sent addr.1': number; 
+  'ERC20 uniq rec contract addr': number;
+  'ERC20 avg time between sent tnx': number;
+  'ERC20 avg time between rec tnx': number;
+  'ERC20 avg time between rec 2 tnx': number;
+  'ERC20 avg time between contract tnx': number;
+  'ERC20 min val rec': number;
+  'ERC20 max val rec': number;
+  'ERC20 avg val rec': number;
+  'ERC20 min val sent': number;
+  'ERC20 max val sent': number;
+  'ERC20 avg val sent': number;
+  'ERC20 min val sent contract': number;
+  'ERC20 max val sent contract': number;
+  'ERC20 avg val sent contract': number;
+  'ERC20 uniq sent token name': number;
+  'ERC20 uniq rec token name': number;
+  'ERC20 most sent token type': string | null;
+  'ERC20_most_rec_token_type': string | null;
+  'ERC20 most sent token type_label': number | null; 
+  'ERC20_most_rec_token_type_label': number | null; 
 }
+
 export interface AnalysisApiResponse {
-  prediction: 'Fraud' | 'Non-Fraud' | number;
-  probability_fraud?: number;
-  confidence?: number;
+  address: string; 
+  prediction: 'Fraud' | 'Non-Fraud' | null; 
+  probability_fraud: number | null; 
+
   features: WalletFeatures; 
-  explanation: Array<[string, number]>;
+  lime_explanation: Array<[string, number]>;
+  shap_force_plot_base64: string; 
+  shap_values: { [key: string]: number }; 
 }
