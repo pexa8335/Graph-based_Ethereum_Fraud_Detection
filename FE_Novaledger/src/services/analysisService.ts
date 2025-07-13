@@ -1,15 +1,9 @@
-import { WalletFeatures } from '@/types/analysis';
-export interface AnalysisResult {
-    prediction: 'Fraud' | 'Non-Fraud';
-    probability_fraud: number;
-    features: WalletFeatures; 
-    explanation: Array<[string, number]>;
+import { AnalysisApiResponse } from '@/types/analysis';
+export interface AnalysisServiceResponse extends AnalysisApiResponse {
 }
-
-export async function fetchAnalysisData(address: string): Promise<AnalysisResult> {
+export async function fetchAnalysisData(address: string): Promise<AnalysisServiceResponse> {
     console.log(`[Service] Bắt đầu phân tích cho: ${address}`);
     const apiUrl = `${process.env.NEXT_PUBLIC_APP_URL}/api/analyze`;
-
     try {
         const response = await fetch(apiUrl, {
             method: 'POST',
@@ -22,11 +16,11 @@ export async function fetchAnalysisData(address: string): Promise<AnalysisResult
         if (!response.ok) {
             throw new Error(result.error || 'Lỗi từ dịch vụ phân tích.');
         }
+
         console.log(`[Service] Nhận được kết quả phân tích thành công.`);
-        return result as AnalysisResult;
+        return result as AnalysisServiceResponse;
 
     } catch (error) {
-        console.error("[Service] Lỗi nghiêm trọng khi fetch dữ liệu phân tích:", error);
         if (error instanceof Error) {
             throw new Error(error.message);
         }

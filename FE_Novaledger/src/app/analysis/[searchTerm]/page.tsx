@@ -1,10 +1,11 @@
-import { fetchAnalysisData, AnalysisResult } from '@/services/analysisService';
+
+import { fetchAnalysisData, AnalysisServiceResponse } from '@/services/analysisService';
 import { SummaryPanel, StatsPanel } from '@/components/analysis/AnalysisPanels';
 
 
 export default async function AnalysisPage({ params }: { params: { searchTerm: string } }) {
   const address = params.searchTerm;
-  let analysisResult: AnalysisResult | null = null;
+  let analysisResult: AnalysisServiceResponse | null = null;
   let error: string | null = null;
 
   try {
@@ -20,6 +21,7 @@ export default async function AnalysisPage({ params }: { params: { searchTerm: s
         </div>
     );
   }
+
   return (
     <div className="p-4 md:p-8 text-white">
       <div className="max-w-7xl mx-auto space-y-8">
