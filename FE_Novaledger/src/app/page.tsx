@@ -2,33 +2,37 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Search, Gauge, Bolt, CurlyBraces } from 'lucide-react';
+import { 
+  Search, 
+  Blocks, 
+  Gauge,  
+  Zap,  
+  Loader2 
+} from 'lucide-react'; 
 
 export default function OnchainDashboardPage() {
   const router = useRouter();
   const [searchTerm, setSearchTerm] = useState('');
+  const [isLoading, setIsLoading] = useState(false); 
+
   const networkStats = [
-    {
-      label: 'Block mới nhất',
-      value: '19,234,567',
-      icon: <CurlyBraces className="text-cyan-400" size={24} />,
-    },
-    {
-      label: 'Giá Gas (Gwei)',
-      value: '25',
-      icon: <Gauge className="text-purple-400" size={24} />,
-    },
-    {
-      label: 'Giao dịch / giây',
-      value: '15',
-      icon: <Bolt className="text-green-400" size={24} />,
-    },
+    { label: 'Block mới nhất', value: '19,234,567', icon: <Blocks className="text-cyan-400" size={24} /> },
+    { label: 'Giá Gas (Gwei)', value: '25', icon: <Gauge className="text-purple-400" size={24} /> },
+    { label: 'Giao dịch / giây', value: '15', icon: <Zap className="h-6 w-6 text-green-400" size={24} /> },
   ];
 
-  const handleAnalysis = (e: React.FormEvent) => {
+  const handleAnalysis = async (e: React.FormEvent) => { 
     e.preventDefault();
     if (!searchTerm.trim()) return;
-    router.push(`/analysis/${searchTerm.trim()}`);
+
+    setIsLoading(true); 
+    
+    try {
+      await new Promise(resolve => setTimeout(resolve, 800));
+      
+      router.push(`/analysis/${searchTerm.trim()}`);
+    } finally {
+    }
   };
 
   return (
@@ -58,21 +62,28 @@ export default function OnchainDashboardPage() {
               type="text"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="Nhập địa chỉ ví..."
+              placeholder="Nhập địa chỉ, TxHash, hoặc tên ENS..."
               className="w-full p-4 pl-12 pr-32 rounded-full text-lg 
                          bg-slate-800/70 border-2 border-slate-600 
                          text-white placeholder-slate-400
                          focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:border-cyan-400
                          transition-all duration-300"
+              disabled={isLoading} 
             />
             <button
               type="submit"
               className="absolute inset-y-0 right-0 m-2 px-6 py-2 rounded-full font-semibold
                          bg-cyan-500 text-black
                          hover:bg-cyan-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-800 focus:ring-cyan-500
-                         transition-colors duration-300"
+                         transition-colors duration-300
+                         flex items-center justify-center gap-2" 
+              disabled={isLoading} 
             >
-              Phân tích
+              {isLoading ? ( 
+                <Loader2 className="h-5 w-5 animate-spin" />
+              ) : (
+                'Phân tích'
+              )}
             </button>
           </div>
         </form>
