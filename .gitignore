@@ -1,1 +1,18 @@
+
+# Bỏ qua thư mục PyCharm
+.idea/
+
+# Bỏ qua môi trường hoặc thư viện phụ trợ
+lib/
+
+# Bỏ qua file môi trường
 *.env
+
+# Bỏ qua các file HTML xuất ra từ PyVis
+*.html
+
+# (Tuỳ chọn) Loại bỏ file notebook checkpoint
+.ipynb_checkpoints/
+
+# (Tuỳ chọn) Loại bỏ thư mục __pycache__ Python
+__pycache__/
