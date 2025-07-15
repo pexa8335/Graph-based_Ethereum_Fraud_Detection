@@ -36,3 +36,4 @@ class AnomalyTool(Tool):
                 f"Địa chỉ {address} được xác định là **Hợp lệ**."
             )
         # *** KẾT THÚC PHẦN GIẢ LẬP ***
+

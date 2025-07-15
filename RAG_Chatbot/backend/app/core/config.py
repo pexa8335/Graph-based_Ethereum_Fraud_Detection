@@ -15,7 +15,7 @@ print("--- KHỞI ĐỘNG MODULE CONFIG ---")
 CONFIG_FILE_PATH = Path(__file__).resolve()
 # .parent sẽ đi lên một thư mục.
 # Đi lên 3 cấp từ config.py (core -> app -> backend) sẽ ra thư mục RAG_chatbot
-RAG_CHATBOT_ROOT = CONFIG_FILE_PATH.parent.parent.parent
+RAG_CHATBOT_ROOT = CONFIG_FILE_PATH.parent.parent.parent.parent
 # Đường dẫn đến file .env được xây dựng từ gốc đó
 DOTENV_PATH = RAG_CHATBOT_ROOT / "backend" / ".env"
 

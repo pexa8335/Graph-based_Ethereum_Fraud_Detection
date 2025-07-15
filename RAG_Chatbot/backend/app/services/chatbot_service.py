@@ -6,6 +6,7 @@ from langchain.tools import tool
 from RAG_Chatbot.backend.app.core import config
 from langchain import hub
 from langchain.agents import AgentExecutor, create_react_agent
+from langchain_community.tools import DuckDuckGoSearchRun
 
 # ==============================================================================
 # --- ĐỊNH NGHĨA CÁC TOOL BÊN NGOÀI CLASS ---
@@ -40,6 +41,44 @@ def anomaly_status_checker(address: str) -> str:
     else:
         return "Kết quả từ Module Phát hiện Bất thường: Địa chỉ được xác định là Hợp lệ."
 
+# Dùng khi có API thật
+# @tool
+# def anomaly_status_checker(address: str) -> str:
+#     """
+#     Kiểm tra trạng thái bất thường của một địa chỉ ví Ethereum cụ thể bằng cách gọi API chuyên dụng.
+#     """
+#     print(f"--- [Tool Call] anomaly_status_checker với địa chỉ: {address} ---")
+    
+#     # Lấy URL thật từ config
+#     api_url = config.ANOMALY_API_URL
+    
+#     try:
+#         # Dùng httpx để gọi API. `with` sẽ tự động đóng kết nối.
+#         with httpx.Client(timeout=10.0) as client:
+#             # Gửi request POST với payload là JSON
+#             response = client.post(api_url, json={"address": address})
+            
+#             # Ném ra lỗi nếu server trả về mã 4xx hoặc 5xx
+#             response.raise_for_status() 
+            
+#             data = response.json()
+#             # Trả về một chuỗi mô tả kết quả cho LLM
+#             is_anomaly = data.get("is_anomaly", False)
+#             explanation = data.get("explanation", "Không có giải thích.")
+#             status = "Bất thường" if is_anomaly else "Hợp lệ"
+            
+#             return f"Kết quả từ Module Phát hiện Bất thường: Địa chỉ được xác định là **{status}**. Giải thích: {explanation}"
+
+#     except httpx.HTTPStatusError as e:
+#         # Bắt lỗi cụ thể từ server (ví dụ: 404 Not Found, 500 Internal Server Error)
+#         return f"API phát hiện bất thường báo lỗi: {e.response.status_code}. Chi tiết: {e.response.text}"
+#     except httpx.RequestError as e:
+#         # Bắt lỗi kết nối mạng (ví dụ: không kết nối được server, timeout)
+#         return f"Lỗi kết nối đến API phát hiện bất thường. Vui lòng kiểm tra xem module đó đã chạy chưa. Chi tiết: {e}"
+#     except Exception as e:
+#         # Bắt các lỗi không mong muốn khác
+#         return f"Đã có lỗi không xác định xảy ra khi gọi API: {e}"
+
 @tool
 def graph_relationship_explorer(address: str) -> str:
     """
@@ -49,6 +88,51 @@ def graph_relationship_explorer(address: str) -> str:
     print(f"--- [Tool Call] graph_relationship_explorer với địa chỉ: {address} ---")
     # Logic giả lập
     return "Kết quả từ Module Xử lý Đồ thị: Địa chỉ đã tương tác với 15 địa chỉ khác, trong đó có 1 luồng tiền đáng ngờ."
+
+# Dùng khi có API thật
+# @tool
+# def graph_relationship_explorer(address: str) -> str:
+#     """
+#     Truy vấn và khám phá các mối quan hệ (luồng tiền, tương tác) của một địa chỉ ví Ethereum bằng cách gọi API của module đồ thị.
+#     """
+#     print(f"--- [Tool Call] graph_relationship_explorer với địa chỉ: {address} ---")
+    
+#     # Bước 1: Lấy URL thật của Module 3 từ config
+#     api_url = config.GRAPH_API_URL
+    
+#     # Kiểm tra xem URL có được cấu hình không
+#     if not api_url or "placeholder" in api_url:
+#         return "Lỗi cấu hình: URL của Graph Handling API chưa được thiết lập."
+
+#     try:
+#         # Bước 2: Gọi API bằng httpx
+#         with httpx.Client(timeout=15.0) as client: # Có thể cho timeout dài hơn một chút vì truy vấn đồ thị có thể phức tạp
+            
+#             # Bước 3: Gửi đúng Payload theo API Contract đã thống nhất với team Module 3
+#             response = client.post(api_url, json={"address": address})
+            
+#             # Ném ra lỗi nếu server trả về mã 4xx hoặc 5xx
+#             response.raise_for_status() 
+            
+#             # Bước 4: Xử lý Response JSON
+#             data = response.json()
+            
+#             # Rút ra các thông tin cần thiết từ JSON trả về
+#             # Giả sử API trả về các key 'interaction_count' và 'summary'
+#             interaction_count = data.get("interaction_count", 0)
+#             summary = data.get("summary", "Không có tóm tắt chi tiết.")
+            
+#             # Bước 5: Định dạng Output thành một câu trả lời tự nhiên
+#             return f"Kết quả từ Module Xử lý Đồ thị: Địa chỉ này đã tương tác với {interaction_count} địa chỉ khác. Tóm tắt: {summary}"
+
+#     # Bước 6: Xử lý Lỗi (y hệt như tool kia)
+#     except httpx.HTTPStatusError as e:
+#         return f"API xử lý đồ thị báo lỗi: {e.response.status_code}. Chi tiết: {e.response.text}"
+#     except httpx.RequestError as e:
+#         return f"Lỗi kết nối đến API xử lý đồ thị. Vui lòng kiểm tra xem module đó đã chạy chưa. Chi tiết: {e}"
+#     except Exception as e:
+#         return f"Đã có lỗi không xác định xảy ra khi gọi API đồ thị: {e}"
+
 
 # ==============================================================================
 # --- CLASS CHATBOT SERVICE ---
@@ -75,7 +159,8 @@ class ChatbotService:
         self.tools = [
             knowledge_base_retriever,
             anomaly_status_checker,
-            graph_relationship_explorer
+            graph_relationship_explorer,
+            DuckDuckGoSearchRun()
         ]
 
         # 4. Lấy prompt
