@@ -284,7 +284,11 @@ class ManualAgent:
 
  # Trong class ManualAgent
 
-    def run(self, user_input: str, max_loops=5):
+    # Trong class ManualAgent
+
+# Trong class ManualAgent
+
+    def run(self, user_input: str, max_loops=7):
         history = ""
         for i in range(max_loops):
             print(f"\n--- VÒNG LẶP {i+1} ---")
@@ -294,30 +298,36 @@ class ManualAgent:
             llm_output = self.llm.invoke(full_prompt)
             print(f"LLM Output:\n{llm_output}")
 
-            # Tách riêng phần Thought và phần còn lại
-            thought_match = re.search(r"Thought:(.*?)Action:", llm_output, re.DOTALL)
-            if not thought_match:
-                # Nếu không có Action, có thể toàn bộ là Final Answer
-                if "Final Answer:" in llm_output:
-                    return llm_output.split("Final Answer:")[-1].strip()
-                return llm_output.strip() # Trả về toàn bộ nếu không parse được gì
-
-            # Kiểm tra xem LLM có muốn trả lời cuối cùng không, NGAY BÂY GIỜ
             if "Final Answer:" in llm_output:
-                # Lấy phần sau "Final Answer:"
-                final_answer = llm_output.split("Final Answer:")[-1].strip()
-                # Trả về ngay lập tức, KẾT THÚC hàm run
-                return final_answer
+                # Logic xử lý Final Answer giữ nguyên
+                answer_part = llm_output.split("Final Answer:", 1)[-1]
+                stop_phrases = ["Thought:", "Action:", "Observation:", "Lịch sử", "Nhiệm vụ"]
+                earliest_stop_pos = len(answer_part)
+                for phrase in stop_phrases:
+                    pos = answer_part.lower().find(phrase.lower())
+                    if pos != -1 and pos < earliest_stop_pos:
+                        earliest_stop_pos = pos
+                final_answer = answer_part[:earliest_stop_pos].strip()
+                if final_answer:
+                    return final_answer
 
-            # Phân tích output của LLM
+            # --- LOGIC MỚI: XỬ LÝ TRƯỜNG HỢP LLM TRẢ LỜI THẲNG ---
             action, action_input = self._parse_llm_output(llm_output)
 
-            if not action or action_input is None:
-                return "Lỗi: Không thể phân tích hành động của AI."
+            if not action:
+                # Nếu không parse được Action, nhưng output có nội dung
+                # thì rất có thể LLM đã trả lời thẳng.
+                # Ta chấp nhận câu trả lời này.
+                if len(llm_output.strip()) > 5: # Kiểm tra để chắc chắn nó không phải là một chuỗi rỗng vớ vẩn
+                    print("--- Phát hiện LLM trả lời trực tiếp, không dùng tool. Chấp nhận câu trả lời. ---")
+                    return llm_output.strip()
+                else:
+                    return "Lỗi: AI không đưa ra được hành động hoặc câu trả lời hợp lệ."
 
             if action not in self.tools:
                 return f"Lỗi: AI đã chọn một công cụ không hợp lệ: {action}"
 
+            # Phần còn lại của vòng lặp giữ nguyên
             print(f"Thực thi Tool: {action}, Input: {action_input}")
             tool_to_run = self.tools[action]
             try:
@@ -327,7 +337,6 @@ class ManualAgent:
             
             print(f"Observation:\n{observation}")
 
-            # Cập nhật lịch sử cho vòng lặp tiếp theo
             history += f"{llm_output}\nObservation: {observation}\n"
         
         return "Agent đã dừng do đạt đến giới hạn số vòng lặp."
