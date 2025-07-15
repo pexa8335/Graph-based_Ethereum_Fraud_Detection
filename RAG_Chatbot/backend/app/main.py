@@ -1,6 +1,6 @@
 # backend/app/main.py
 from fastapi import FastAPI
-from app.api import router as api_router
+from RAG_Chatbot.backend.app.api import router as api_router
 
 app = FastAPI(
     title="RAG Chatbot API",

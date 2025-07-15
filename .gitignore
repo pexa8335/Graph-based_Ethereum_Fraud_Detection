@@ -1,1 +1,59 @@
+# ===============================================================
+# FILE .GITIGNORE CHUẨN
+# ===============================================================
+
+# 1. BÍ MẬT & CẤU HÌNH
+# Tuyệt đối không bao giờ đẩy file chứa mật khẩu, API key.
 *.env
+.env
+.env.*
+
+# 2. MÔI TRƯỜNG ẢO & DEPENDENCIES
+# Môi trường ảo là của riêng mỗi máy, không chia sẻ.
+/venv/
+/.venv/
+/env/
+/.env/
+/ENV/
+/env.bak/
+/venv.bak/
+
+# 3. DỮ LIỆU LỚN & ARTIFACTS
+# Git không phải nơi chứa dữ liệu lớn. Nó làm chậm repo.
+# Các thư mục này phải được quản lý riêng.
+/data/
+/models/
+/vector_store/
+*.pkl
+
+# 4. FILE DO PYTHON & CÁC CÔNG CỤ TẠO RA (CACHE)
+# Đây là rác, không phải code.
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+.pytest_cache/
+.mypy_cache/
+.pyre/
+.tox/
+
+# 5. CÁC FILE CỦA HỆ ĐIỀU HÀNH & IDE
+.DS_Store
+.vscode/

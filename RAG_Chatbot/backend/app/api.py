@@ -1,8 +1,7 @@
 # backend/app/api.py
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
-from app.services.chatbot_service import chatbot_service
-
+from RAG_Chatbot.backend.app.services.chatbot_service import chatbot_service
 # Pydantic model để xác thực dữ liệu đầu vào. Luôn làm điều này.
 class ChatRequest(BaseModel):
     question: str
