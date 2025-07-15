@@ -7,6 +7,7 @@ from RAG_Chatbot.backend.app.core import config
 from langchain import hub
 from langchain.agents import AgentExecutor, create_react_agent
 from langchain_community.tools import DuckDuckGoSearchRun
+from langchain_core.prompts import ChatPromptTemplate
 
 # ==============================================================================
 # --- ĐỊNH NGHĨA CÁC TOOL BÊN NGOÀI CLASS ---
@@ -16,8 +17,9 @@ from langchain_community.tools import DuckDuckGoSearchRun
 @tool
 def knowledge_base_retriever(query: str) -> str:
     """
-    Truy xuất thông tin từ cơ sở dữ liệu nội bộ về địa chỉ ví, giao dịch và các tài liệu kiến thức chung.
-    Rất hữu ích để trả lời các câu hỏi về định nghĩa, khái niệm hoặc thông tin có trong tài liệu.
+    CHỈ SỬ DỤNG KHI cần truy xuất thông tin kỹ thuật về các khái niệm của blockchain Ethereum,
+    hoặc thông tin chi tiết về các giao dịch, địa chỉ ví CÓ SẴN trong cơ sở dữ liệu nội bộ.
+    KHÔNG dùng để hỏi về tin tức, giá cả, hoặc các sự kiện mới.
     """
     print(f"--- [Tool Call] knowledge_base_retriever với query: {query} ---")
     # --- TRUY CẬP INSTANCE chatbot_service ĐỂ LẤY VECTORDB ---
@@ -33,6 +35,8 @@ def anomaly_status_checker(address: str) -> str:
     """
     Kiểm tra trạng thái bất thường của một địa chỉ ví Ethereum cụ thể.
     Sử dụng công cụ này khi người dùng hỏi một địa chỉ có phải là lừa đảo, gian lận, hay bất thường không.
+    CHỈ SỬ DỤNG để kiểm tra trạng thái bất thường của một ĐỊA CHỈ VÍ ETHEREUM cụ thể.
+    Đầu vào BẮT BUỘC phải là một chuỗi địa chỉ ví, ví dụ: '0x...'.
     """
     print(f"--- [Tool Call] anomaly_status_checker với địa chỉ: {address} ---")
     # Logic giả lập
@@ -45,7 +49,10 @@ def anomaly_status_checker(address: str) -> str:
 # @tool
 # def anomaly_status_checker(address: str) -> str:
 #     """
-#     Kiểm tra trạng thái bất thường của một địa chỉ ví Ethereum cụ thể bằng cách gọi API chuyên dụng.
+#     Kiểm tra trạng thái bất thường của một địa chỉ ví Ethereum cụ thể.
+#     Sử dụng công cụ này khi người dùng hỏi một địa chỉ có phải là lừa đảo, gian lận, hay bất thường không.
+#     CHỈ SỬ DỤNG để kiểm tra trạng thái bất thường của một ĐỊA CHỈ VÍ ETHEREUM cụ thể.
+#     Đầu vào BẮT BUỘC phải là một chuỗi địa chỉ ví, ví dụ: '0x...'.
 #     """
 #     print(f"--- [Tool Call] anomaly_status_checker với địa chỉ: {address} ---")
     
@@ -84,6 +91,8 @@ def graph_relationship_explorer(address: str) -> str:
     """
     Truy vấn và khám phá các mối quan hệ (luồng tiền, tương tác) của một địa chỉ ví Ethereum.
     Sử dụng khi người dùng hỏi một địa chỉ đã gửi tiền cho ai, nhận tiền từ đâu, hoặc có liên quan đến các địa chỉ nào khác.
+    CHỈ SỬ DỤNG để khám phá các mối quan hệ của một ĐỊA CHỈ VÍ ETHEREUM cụ thể.
+    Đầu vào BẮT BUỘC phải là một chuỗi địa chỉ ví, ví dụ: '0x...'.
     """
     print(f"--- [Tool Call] graph_relationship_explorer với địa chỉ: {address} ---")
     # Logic giả lập
@@ -94,6 +103,8 @@ def graph_relationship_explorer(address: str) -> str:
 # def graph_relationship_explorer(address: str) -> str:
 #     """
 #     Truy vấn và khám phá các mối quan hệ (luồng tiền, tương tác) của một địa chỉ ví Ethereum bằng cách gọi API của module đồ thị.
+#     CHỈ SỬ DỤNG để khám phá các mối quan hệ của một ĐỊA CHỈ VÍ ETHEREUM cụ thể.
+#     Đầu vào BẮT BUỘC phải là một chuỗi địa chỉ ví, ví dụ: '0x...'.   
 #     """
 #     print(f"--- [Tool Call] graph_relationship_explorer với địa chỉ: {address} ---")
     
@@ -163,14 +174,42 @@ class ChatbotService:
             DuckDuckGoSearchRun()
         ]
 
-        # 4. Lấy prompt
-        prompt = hub.pull("hwchase17/react")
+        # 4. Tạo một prompt tùy chỉnh, chi tiết hơn
+        prompt_template = """
+        Bạn là một trợ lý AI chuyên nghiệp, được trang bị các công cụ sau đây để trả lời câu hỏi của người dùng. Hãy tuân thủ nghiêm ngặt các quy tắc sau:
+        1.  Luôn phân tích kỹ câu hỏi của người dùng để chọn công cụ phù hợp nhất.
+        2.  Ưu tiên dùng `duckduckgo_search` cho các câu hỏi về tin tức, sự kiện hiện tại, giá cả, hoặc các thông tin không có trong cơ sở dữ liệu nội bộ.
+        3.  Chỉ dùng các công cụ `anomaly_status_checker` và `graph_relationship_explorer` khi người dùng cung cấp một ĐỊA CHỈ VÍ cụ thể.
+        4.  Sau khi một công cụ đã cung cấp đủ thông tin để trả lời câu hỏi, hãy đưa ra câu trả lời cuối cùng ngay lập tức. Đừng gọi thêm các công cụ khác một cách không cần thiết.
+        5.  Luôn suy nghĩ từng bước một.
+
+        CÁC CÔNG CỤ CÓ SẴN:
+        {tools}
+
+        HÃY SỬ DỤNG ĐỊNH DẠNG SAU:
+
+        Question: câu hỏi đầu vào mà bạn cần trả lời
+        Thought: bạn nên luôn suy nghĩ về những gì cần làm
+        Action: hành động cần thực hiện, PHẢI là một trong các công cụ sau: [{tool_names}]
+        Action Input: đầu vào cho hành động đó
+        Observation: kết quả của hành động
+        ... (vòng lặp Thought/Action/Action Input/Observation này có thể lặp lại N lần)
+        Thought: Bây giờ tôi đã có câu trả lời cuối cùng
+        Final Answer: câu trả lời cuối cùng cho câu hỏi gốc của người dùng
+
+        BẮT ĐẦU!
+
+        Question: {input}
+        Thought:{agent_scratchpad}
+        """
+        prompt = ChatPromptTemplate.from_template(prompt_template)
+
 
         # 5. Tạo Agent
         agent = create_react_agent(self.llm, self.tools, prompt)
 
         # 6. Tạo Agent Executor
-        self.agent_executor = AgentExecutor(agent=agent, tools=self.tools, verbose=True)
+        self.agent_executor = AgentExecutor(agent=agent, tools=self.tools, verbose=True, handle_parsing_errors=True)
         print("ChatbotService với Ollama (ReAct Agent) đã sẵn sàng.")
 
     def ask(self, question: str) -> str:
