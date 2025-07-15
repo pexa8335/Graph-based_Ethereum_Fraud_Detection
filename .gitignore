@@ -20,14 +20,12 @@
 
 # 3. DỮ LIỆU LỚN & ARTIFACTS
 # Git không phải nơi chứa dữ liệu lớn. Nó làm chậm repo.
-# Các thư mục này phải được quản lý riêng.
 /data/
 /models/
 /vector_store/
 *.pkl
 
 # 4. FILE DO PYTHON & CÁC CÔNG CỤ TẠO RA (CACHE)
-# Đây là rác, không phải code.
 __pycache__/
 *.pyc
 *.pyo
@@ -57,3 +55,8 @@ share/python-wheels/
 # 5. CÁC FILE CỦA HỆ ĐIỀU HÀNH & IDE
 .DS_Store
 .vscode/
+.idea/
+
+# 6. FILE TẠM / TUỲ CHỌN KHÁC
+.ipynb_checkpoints/
+*.html
