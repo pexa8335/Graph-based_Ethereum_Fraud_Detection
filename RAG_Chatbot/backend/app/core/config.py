@@ -1,52 +1,59 @@
 # RAG_chatbot/backend/app/core/config.py
 import os
+from pathlib import Path  # Dùng pathlib để xử lý đường dẫn cho chuyên nghiệp
 from dotenv import load_dotenv
 
 # ==============================================================================
-# XÂY DỰNG ĐƯỜNG DẪN TUYỆT ĐỐI - LÀM MỘT LẦN, DÙNG MỌI NƠI
+# PHẦN DEBUG ĐƯỜNG DẪN - KHÔNG THỂ SAI ĐƯỢC
 # ==============================================================================
+print("\n" + "="*60)
+print("--- KHỞI ĐỘNG MODULE CONFIG ---")
 
-# 1. Xác định đường dẫn gốc của module RAG_chatbot
-# Từ file này (config.py) đi lên 3 cấp sẽ ra thư mục RAG_chatbot
-# app/core/ -> app/ -> backend/ -> RAG_chatbot/
-RAG_CHATBOT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+# Path(biến) sẽ tạo ra một đối tượng đường dẫn thông minh.
+# __file__ là đường dẫn đến file này (config.py)
+# .resolve() sẽ biến nó thành đường dẫn tuyệt đối, không có sai sót.
+CONFIG_FILE_PATH = Path(__file__).resolve()
+# .parent sẽ đi lên một thư mục.
+# Đi lên 3 cấp từ config.py (core -> app -> backend) sẽ ra thư mục RAG_chatbot
+RAG_CHATBOT_ROOT = CONFIG_FILE_PATH.parent.parent.parent
+# Đường dẫn đến file .env được xây dựng từ gốc đó
+DOTENV_PATH = RAG_CHATBOT_ROOT / "backend" / ".env"
 
-# 2. Xây dựng đường dẫn đến file .env
-DOTENV_PATH = os.path.join(RAG_CHATBOT_ROOT, 'backend', '.env')
+print(f"Thư mục làm việc hiện tại (CWD): {Path.cwd()}")
+print(f"Đường dẫn file config.py được giải quyết: {CONFIG_FILE_PATH}")
+print(f"Đường dẫn gốc RAG_CHATBOT_ROOT được tính toán: {RAG_CHATBOT_ROOT}")
+print(f"Đường dẫn file .env đang tìm kiếm: {DOTENV_PATH}")
+print(f"File .env có tồn tại ở đường dẫn trên không? {'CÓ' if DOTENV_PATH.exists() else 'KHÔNG. ĐÂY LÀ VẤN ĐỀ CHÍNH!'}")
+print("="*60 + "\n")
 
-# 3. Tải .env
-if not os.path.exists(DOTENV_PATH):
-    print(f"CẢNH BÁO: Không tìm thấy file .env tại {DOTENV_PATH}. Các cấu hình có thể bị thiếu.")
+# ==============================================================================
+# TẢI BIẾN MÔI TRƯỜNG
+# ==============================================================================
 load_dotenv(dotenv_path=DOTENV_PATH)
 
-# ==============================================================================
-# HÀM HELPER VÀ CÁC BIẾN CẤU HÌNH
-# ==============================================================================
-
 def get_env_var(var_name: str, is_path: bool = False) -> str:
-    """
-    Lấy biến môi trường. Nếu là đường dẫn, xây dựng đường dẫn tuyệt đối.
-    Báo lỗi nếu không tìm thấy.
-    """
     value = os.getenv(var_name)
-    if value is None:
-        raise ValueError(f"Lỗi: Biến môi trường '{var_name}' chưa được thiết lập trong file .env")
+    if not value: # Kiểm tra cả None và chuỗi rỗng
+        raise ValueError(f"Lỗi: Biến môi trường '{var_name}' chưa được thiết lập hoặc để trống trong file .env tại {DOTENV_PATH}")
     
     if is_path:
-        # Nối đường dẫn tương đối từ .env với đường dẫn gốc của dự án
-        return os.path.join(RAG_CHATBOT_ROOT, value)
+        # Nối đường dẫn bằng pathlib, an toàn hơn os.path.join
+        return str(RAG_CHATBOT_ROOT / value)
     
     return value
 
-# Lấy các cấu hình bằng hàm helper
-# is_path=True sẽ tự động biến nó thành đường dẫn tuyệt đối
-HF_TOKEN = get_env_var("HF_TOKEN")
-LLM_MODEL_NAME = get_env_var("LLM_MODEL_NAME")
-EMBEDDING_MODEL_NAME = get_env_var("EMBEDDING_MODEL_NAME")
-
-VECTOR_DB_PATH = get_env_var("VECTOR_DB_PATH", is_path=True)
-KNOWLEDGE_DOCS_PATH = get_env_var("KNOWLEDGE_DOCS_PATH", is_path=True)
-DATA_PATH = get_env_var("DATA_PATH", is_path=True)
-
-ANOMALY_API_URL = get_env_var("ANOMALY_API_URL")
-GRAPH_API_URL = get_env_var("GRAPH_API_URL")
+# Lấy các cấu hình
+try:
+    HF_TOKEN = get_env_var("HF_TOKEN")
+    LLM_MODEL_NAME = get_env_var("LLM_MODEL_NAME")
+    EMBEDDING_MODEL_NAME = get_env_var("EMBEDDING_MODEL_NAME")
+    VECTOR_DB_PATH = get_env_var("VECTOR_DB_PATH", is_path=True)
+    KNOWLEDGE_DOCS_PATH = get_env_var("KNOWLEDGE_DOCS_PATH", is_path=True)
+    DATA_PATH = get_env_var("DATA_PATH", is_path=True)
+    ANOMALY_API_URL = get_env_var("ANOMALY_API_URL")
+    GRAPH_API_URL = get_env_var("GRAPH_API_URL")
+except ValueError as e:
+    print(f"LỖI NGHIÊM TRỌNG KHI TẢI CẤU HÌNH: {e}")
+    # Thoát tiến trình nếu cấu hình sai, để server không khởi động với trạng thái lỗi
+    import sys
+    sys.exit(1)
