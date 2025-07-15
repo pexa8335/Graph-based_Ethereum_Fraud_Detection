@@ -3,7 +3,7 @@ from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_community.vectorstores import FAISS
 from langchain_ollama.llms import OllamaLLM
 from langchain.tools import tool
-from app.core import config
+from RAG_Chatbot.backend.app.core import config
 from langchain import hub
 from langchain.agents import AgentExecutor, create_react_agent
 
