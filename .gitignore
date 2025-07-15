@@ -1,18 +1,62 @@
+# ===============================================================
+# FILE .GITIGNORE CHUẨN
+# ===============================================================
 
-# Bỏ qua thư mục PyCharm
+# 1. BÍ MẬT & CẤU HÌNH
+# Tuyệt đối không bao giờ đẩy file chứa mật khẩu, API key.
+*.env
+.env
+.env.*
+
+# 2. MÔI TRƯỜNG ẢO & DEPENDENCIES
+# Môi trường ảo là của riêng mỗi máy, không chia sẻ.
+/venv/
+/.venv/
+/env/
+/.env/
+/ENV/
+/env.bak/
+/venv.bak/
+
+# 3. DỮ LIỆU LỚN & ARTIFACTS
+# Git không phải nơi chứa dữ liệu lớn. Nó làm chậm repo.
+/data/
+/models/
+/vector_store/
+*.pkl
+
+# 4. FILE DO PYTHON & CÁC CÔNG CỤ TẠO RA (CACHE)
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+.pytest_cache/
+.mypy_cache/
+.pyre/
+.tox/
+
+# 5. CÁC FILE CỦA HỆ ĐIỀU HÀNH & IDE
+.DS_Store
+.vscode/
 .idea/
 
-# Bỏ qua môi trường hoặc thư viện phụ trợ
-lib/
-
-# Bỏ qua file môi trường
-*.env
-
-# Bỏ qua các file HTML xuất ra từ PyVis
-*.html
-
-# (Tuỳ chọn) Loại bỏ file notebook checkpoint
+# 6. FILE TẠM / TUỲ CHỌN KHÁC
 .ipynb_checkpoints/
-
-# (Tuỳ chọn) Loại bỏ thư mục __pycache__ Python
-__pycache__/
+*.html
