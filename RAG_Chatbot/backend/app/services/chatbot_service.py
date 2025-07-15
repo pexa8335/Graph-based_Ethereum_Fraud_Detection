@@ -1,18 +1,59 @@
-# backend/app/services/chatbot_service.py
+# RAG_chatbot/backend/app/services/chatbot_service.py
+import httpx
+import re
+import json
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_community.vectorstores import FAISS
-from langchain_ollama.llms import OllamaLLM
+from langchain_community.llms import Ollama
 from langchain.tools import tool
+from duckduckgo_search import DDGS
 from RAG_Chatbot.backend.app.core import config
-from langchain import hub
-from langchain.agents import AgentExecutor, create_react_agent
-from langchain_community.tools import DuckDuckGoSearchRun
-from langchain_core.prompts import ChatPromptTemplate
 
 # ==============================================================================
 # --- ĐỊNH NGHĨA CÁC TOOL BÊN NGOÀI CLASS ---
 # Các tool này là các hàm độc lập.
 # ==============================================================================
+# Trong chatbot_service.py
+
+@tool
+def internet_search(query: str) -> str:
+    """
+    Sử dụng để tìm kiếm thông tin mới nhất trên Internet về các sự kiện, tin tức, giá cả, hoặc kiến thức chung.
+    """
+    print(f"--- [Tool Call] internet_search với query: {query} ---")
+    try:
+        with DDGS(timeout=20) as ddgs:
+            results = ddgs.text(query, region='us-en', max_results=7) # Lấy nhiều hơn một chút để có cái mà lọc
+            
+            if not results:
+                return "Không tìm thấy kết quả nào."
+
+            # --- LỚP LỌC KẾT QUẢ ---
+            # Chỉ giữ lại các kết quả có chứa các từ khóa liên quan trong tiêu đề hoặc tóm tắt
+            keywords = query.lower().split()
+            filtered_results = []
+            for res in results:
+                content_lower = (res['title'] + res['body']).lower()
+                # Nếu ít nhất một từ khóa có trong nội dung, ta coi nó là liên quan
+                if any(keyword in content_lower for keyword in keywords):
+                    filtered_results.append(res)
+            
+            if not filtered_results:
+                return "Không tìm thấy kết quả liên quan sau khi lọc."
+
+            # Chỉ lấy 3 kết quả tốt nhất sau khi lọc
+            final_results = filtered_results[:3]
+            
+            # Định dạng lại kết quả
+            formatted_results = []
+            for i, res in enumerate(final_results):
+                formatted_results.append(f"Kết quả {i+1}:\n- Tiêu đề: {res['title']}\n- Tóm tắt: {res['body']}")
+            
+            return "\n".join(formatted_results)
+
+    except Exception as e:
+        return f"Lỗi khi thực hiện tìm kiếm trên web: {e}"
+
 
 @tool
 def knowledge_base_retriever(query: str) -> str:
@@ -150,77 +191,174 @@ def graph_relationship_explorer(address: str) -> str:
 # Class này bây giờ chỉ chịu trách nhiệm khởi tạo và quản lý agent.
 # ==============================================================================
 
+# --- VÒNG LẶP AGENT TỰ XÂY DỰNG ---
+class ManualAgent:
+    def __init__(self, llm, tools):
+        self.llm = llm
+        self.tools = {t.name: t for t in tools}
+        self.prompt_template = self._build_prompt_template()
+
+# Trong ManualAgent
+
+    def _build_prompt_template(self):
+            # Xây dựng phần mô tả tools cho prompt
+        tool_descriptions = "\n".join([f"- {tool.name}: {tool.description}" for tool in self.tools.values()])
+        tool_names = ", ".join(self.tools.keys())
+
+            # Đây là một ví dụ mẫu (few-shot example) để dạy cho LLM
+        example = """
+        Question: Địa chỉ 0x123... có phải là lừa đảo không và có tin tức gì về nó không?
+        Thought: Người dùng muốn làm hai việc: kiểm tra trạng thái bất thường của một địa chỉ và tìm kiếm tin tức liên quan. Tôi sẽ bắt đầu bằng việc kiểm tra trạng thái trước.
+        Action: anomaly_status_checker
+        Action Input: 0x123...
+        Observation: Kết quả từ Module Phát hiện Bất thường: Địa chỉ được xác định là Bất thường. Giải thích: Tương tác với các địa chỉ trong danh sách đen.
+        Thought: OK, địa chỉ này là bất thường. Bây giờ tôi cần tìm tin tức về nó để cung cấp thêm ngữ cảnh cho người dùng. Tôi sẽ dùng công cụ tìm kiếm web.
+        Action: internet_search
+        Action Input: "địa chỉ lừa đảo 0x123..."
+        Observation: Kết quả 1: Tiêu đề: Cảnh báo về địa chỉ lừa đảo 0x123... trên diễn đàn CryptoScamAlert...
+        Thought: Tôi đã có đủ thông tin. Địa chỉ này được xác nhận là bất thường bởi hệ thống nội bộ và cũng có các báo cáo công khai trên internet. Bây giờ tôi sẽ tổng hợp và trả lời.
+        Final Answer: Có, địa chỉ 0x123... được xác định là bất thường. Hệ thống của chúng tôi phát hiện nó có tương tác với các địa chỉ trong danh sách đen. Ngoài ra, một tìm kiếm trên internet cũng cho thấy các cảnh báo về địa chỉ này trên diễn đàn CryptoScamAlert.
+        """
+
+            # Prompt cuối cùng, kết hợp tất cả các yếu tố
+        return f"""
+        Bạn là một Trợ lý Phân tích Blockchain chuyên nghiệp. Nhiệm vụ của bạn là sử dụng các công cụ một cách logic và hiệu quả để trả lời câu hỏi của người dùng một cách chính xác.
+
+        **QUY TẮC VÀNG:**
+        1.  **PHÂN TÍCH & LẬP KẾ HOẠCH:** Luôn bắt đầu bằng `Thought` để phân tích câu hỏi và vạch ra kế hoạch hành động từng bước.
+        2.  **HÀNH ĐỘNG CHÍNH XÁC:** Chọn một công cụ (Action) và cung cấp đầu vào (Action Input) phù hợp.
+        3.  **ĐÁNH GIÁ & QUYẾT ĐỊNH:** Sau mỗi `Observation`, hãy suy nghĩ xem thông tin đã đủ chưa.
+            - NẾU CHƯA ĐỦ: Hãy suy nghĩ về bước tiếp theo (dùng tool khác hoặc dùng lại tool cũ với input khác).
+            - NẾU ĐỦ: Dừng lại ngay lập tức và viết `Final Answer:`.
+        4.  **TỔNG HỢP THÔNG MINH:** `Final Answer` PHẢI là một bản tóm tắt tổng hợp, mạch lạc, không phải là một bản sao chép của `Observation`.
+
+        **CÁC CÔNG CỤ CỦA BẠN:**
+        {tool_descriptions}
+
+        **ĐỊNH DẠNG OUTPUT BẮT BUỘC (TUYỆT ĐỐI KHÔNG THAY ĐỔI):**
+        Thought: [suy nghĩ và kế hoạch của bạn]
+        Action: {tool_names}
+        Action Input: [đầu vào cho công cụ]
+
+        ---
+        **VÍ DỤ MẪU HOÀN HẢO:**
+        {example}
+        ---
+
+        **BẮT ĐẦU THỰC HIỆN NHIỆM VỤ:**
+
+        **Lịch sử các bước đã thực hiện:**
+        {{history}}
+
+        **Câu hỏi mới của người dùng:** {{input}}
+        Thought:
+        """
+
+    def _parse_llm_output(self, text: str):
+        """
+        Hàm phân tích output của LLM, được thiết kế để xử lý các biến thể định dạng.
+        Nó sẽ tìm các cặp khóa-giá trị "Action" và "Action Input".
+        """
+        # Xóa các ký tự markdown (**, `) để làm sạch text
+        cleaned_text = text.replace("`", "").replace("*", "")
+
+        # Tìm Action
+        action_match = re.search(r"Action:\s*(\S+)", cleaned_text, re.IGNORECASE)
+        action = action_match.group(1).strip() if action_match else None
+
+        # Tìm Action Input
+        # Tìm kiếm mọi thứ nằm sau "Action Input:" cho đến hết dòng
+        input_match = re.search(r"Action Input:\s*(.*)", cleaned_text, re.IGNORECASE)
+        action_input = input_match.group(1).strip().strip('"') if input_match else None # Xóa luôn dấu "" ở đầu/cuối
+
+        if not action or action_input is None: # Kiểm tra cả action_input is None vì nó có thể là chuỗi rỗng
+            print(f"--- PARSER DEBUG ---")
+            print(f"Text gốc: {text}")
+            print(f"Text đã làm sạch: {cleaned_text}")
+            print(f"Action tìm thấy: {action}")
+            print(f"Action Input tìm thấy: {action_input}")
+            print(f"--------------------")
+            return None, None
+
+        return action, action_input
+
+ # Trong class ManualAgent
+
+    def run(self, user_input: str, max_loops=5):
+        history = ""
+        for i in range(max_loops):
+            print(f"\n--- VÒNG LẶP {i+1} ---")
+
+            full_prompt = self.prompt_template.format(history=history, input=user_input)
+            
+            llm_output = self.llm.invoke(full_prompt)
+            print(f"LLM Output:\n{llm_output}")
+
+            # Tách riêng phần Thought và phần còn lại
+            thought_match = re.search(r"Thought:(.*?)Action:", llm_output, re.DOTALL)
+            if not thought_match:
+                # Nếu không có Action, có thể toàn bộ là Final Answer
+                if "Final Answer:" in llm_output:
+                    return llm_output.split("Final Answer:")[-1].strip()
+                return llm_output.strip() # Trả về toàn bộ nếu không parse được gì
+
+            # Kiểm tra xem LLM có muốn trả lời cuối cùng không, NGAY BÂY GIỜ
+            if "Final Answer:" in llm_output:
+                # Lấy phần sau "Final Answer:"
+                final_answer = llm_output.split("Final Answer:")[-1].strip()
+                # Trả về ngay lập tức, KẾT THÚC hàm run
+                return final_answer
+
+            # Phân tích output của LLM
+            action, action_input = self._parse_llm_output(llm_output)
+
+            if not action or action_input is None:
+                return "Lỗi: Không thể phân tích hành động của AI."
+
+            if action not in self.tools:
+                return f"Lỗi: AI đã chọn một công cụ không hợp lệ: {action}"
+
+            print(f"Thực thi Tool: {action}, Input: {action_input}")
+            tool_to_run = self.tools[action]
+            try:
+                observation = tool_to_run.run(action_input)
+            except Exception as e:
+                observation = f"Lỗi khi chạy tool: {e}"
+            
+            print(f"Observation:\n{observation}")
+
+            # Cập nhật lịch sử cho vòng lặp tiếp theo
+            history += f"{llm_output}\nObservation: {observation}\n"
+        
+        return "Agent đã dừng do đạt đến giới hạn số vòng lặp."
+
+# --- CLASS CHATBOT SERVICE ---
 class ChatbotService:
     def __init__(self):
-        print("Đang khởi tạo ChatbotService...")
+        print("Đang khởi tạo ChatbotService (Manual Agent)...")
+        # Dùng Ollama bản thường
+        self.llm = Ollama(model=config.LLM_MODEL_NAME)
         
-        # 1. Lấy cấu hình trực tiếp từ module config
-        self.llm = OllamaLLM(model=config.LLM_MODEL_NAME)
         self.embedding_model = HuggingFaceEmbeddings(model_name=config.EMBEDDING_MODEL_NAME)
-        
-        # 2. Tải VectorDB bằng đường dẫn tuyệt đối đã được xử lý sẵn
-        print(f"Đang tải VectorDB từ: {config.VECTOR_DB_PATH}")
         self.vectordb = FAISS.load_local(
             config.VECTOR_DB_PATH,
             self.embedding_model,
             allow_dangerous_deserialization=True
         )
-        
-        # 3. Gom các tool đã định nghĩa ở trên vào một danh sách
-        self.tools = [
+
+        tools = [
+            internet_search,
             knowledge_base_retriever,
             anomaly_status_checker,
             graph_relationship_explorer,
-            DuckDuckGoSearchRun()
         ]
 
-        # 4. Tạo một prompt tùy chỉnh, chi tiết hơn
-        prompt_template = """
-        Bạn là một trợ lý AI chuyên nghiệp, được trang bị các công cụ sau đây để trả lời câu hỏi của người dùng. Hãy tuân thủ nghiêm ngặt các quy tắc sau:
-        1.  Luôn phân tích kỹ câu hỏi của người dùng để chọn công cụ phù hợp nhất.
-        2.  Ưu tiên dùng `duckduckgo_search` cho các câu hỏi về tin tức, sự kiện hiện tại, giá cả, hoặc các thông tin không có trong cơ sở dữ liệu nội bộ.
-        3.  Chỉ dùng các công cụ `anomaly_status_checker` và `graph_relationship_explorer` khi người dùng cung cấp một ĐỊA CHỈ VÍ cụ thể.
-        4.  Sau khi một công cụ đã cung cấp đủ thông tin để trả lời câu hỏi, hãy đưa ra câu trả lời cuối cùng ngay lập tức. Đừng gọi thêm các công cụ khác một cách không cần thiết.
-        5.  Luôn suy nghĩ từng bước một.
-
-        CÁC CÔNG CỤ CÓ SẴN:
-        {tools}
-
-        HÃY SỬ DỤNG ĐỊNH DẠNG SAU:
-
-        Question: câu hỏi đầu vào mà bạn cần trả lời
-        Thought: bạn nên luôn suy nghĩ về những gì cần làm
-        Action: hành động cần thực hiện, PHẢI là một trong các công cụ sau: [{tool_names}]
-        Action Input: đầu vào cho hành động đó
-        Observation: kết quả của hành động
-        ... (vòng lặp Thought/Action/Action Input/Observation này có thể lặp lại N lần)
-        Thought: Bây giờ tôi đã có câu trả lời cuối cùng
-        Final Answer: câu trả lời cuối cùng cho câu hỏi gốc của người dùng
-
-        BẮT ĐẦU!
-
-        Question: {input}
-        Thought:{agent_scratchpad}
-        """
-        prompt = ChatPromptTemplate.from_template(prompt_template)
-
-
-        # 5. Tạo Agent
-        agent = create_react_agent(self.llm, self.tools, prompt)
-
-        # 6. Tạo Agent Executor
-        self.agent_executor = AgentExecutor(agent=agent, tools=self.tools, verbose=True, handle_parsing_errors=True)
-        print("ChatbotService với Ollama (ReAct Agent) đã sẵn sàng.")
+        # Khởi tạo Manual Agent của chúng ta
+        self.agent = ManualAgent(self.llm, tools)
+        print("ChatbotService (Manual Agent) đã sẵn sàng.")
 
     def ask(self, question: str) -> str:
-        print(f"Nhận câu hỏi: {question}")
-        try:
-            response = self.agent_executor.invoke({"input": question})
-            return response.get("output", "Không có output.")
-        except Exception as e:
-            print(f"LỖI KHI CHẠY AGENT: {e}")
-            return "Xin lỗi, đã có lỗi xảy ra trong quá trình xử lý. Vui lòng thử lại."
+        return self.agent.run(question)
 
-# --- TẠO INSTANCE DUY NHẤT ---
-# Dòng này phải nằm cuối cùng, sau khi tất cả các class và tool đã được định nghĩa.
+# --- INSTANCE ---
 chatbot_service = ChatbotService()
