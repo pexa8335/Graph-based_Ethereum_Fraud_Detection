@@ -77,7 +77,7 @@ def get_node_color(probability_fraud: float) -> str:
     if probability_fraud > PROB_FRAUD_THRESHOLD:
         return 'red'  # Gian lận
     elif probability_fraud > PROB_SUSPICIOUS_THRESHOLD:
-        return 'gold'  # Nghi ngờ (màu vàng)
+        return 'orange'  # Nghi ngờ (màu vàng)
     elif probability_fraud >= 0:
         return 'green'  # An toàn
     else:
@@ -146,20 +146,43 @@ def draw_transaction_graph(central_address: str, transactions: List[Dict[str, An
 
     net.set_options("""
     const options = {
-      "nodes": {"font": {"size": 12, "face": "Tahoma"}},
+      "nodes": {
+        "font": {
+          "size": 12,
+          "face": "Tahoma"
+        }
+      },
       "edges": {
         "color": {"inherit": "from"},
-        "smooth": {"type": "dynamic", "forceDirection": "none", "roundness": 0.5},
-        "arrows": {"to": {"enabled": true, "scaleFactor": 0.5}}
+        "smooth": {
+          "type": "dynamic",
+          "forceDirection": "none",
+          "roundness": 0.5
+        },
+        "arrows": {
+          "to": {
+            "enabled": true,
+            "scaleFactor": 1.4
+          }
+        },
+        "arrowStrikethrough": false
       },
       "physics": {
         "forceAtlas2Based": {
-          "gravitationalConstant": -50, "centralGravity": 0.01,
-          "springLength": 230, "springConstant": 0.08, "avoidOverlap": 0.5
+          "gravitationalConstant": -50,
+          "centralGravity": 0.01,
+          "springLength": 230,
+          "springConstant": 0.08,
+          "avoidOverlap": 0.5
         },
-        "minVelocity": 0.75, "solver": "forceAtlas2Based"
+        "minVelocity": 0.75,
+        "solver": "forceAtlas2Based"
       },
-      "interaction": {"hover": true, "navigationButtons": true, "tooltipDelay": 200}
+      "interaction": {
+        "hover": true,
+        "navigationButtons": true,
+        "tooltipDelay": 200
+      }
     }
     """)
 
