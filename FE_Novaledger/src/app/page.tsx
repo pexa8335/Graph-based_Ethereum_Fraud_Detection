@@ -16,9 +16,9 @@ export default function OnchainDashboardPage() {
   const [isLoading, setIsLoading] = useState(false); 
 
   const networkStats = [
-    { label: 'Block mới nhất', value: '19,234,567', icon: <Blocks className="text-cyan-400" size={24} /> },
-    { label: 'Giá Gas (Gwei)', value: '25', icon: <Gauge className="text-purple-400" size={24} /> },
-    { label: 'Giao dịch / giây', value: '15', icon: <Zap className="h-6 w-6 text-green-400" size={24} /> },
+    { label: 'Latest Block', value: '19,234,567', icon: <Blocks className="text-cyan-400" size={24} /> },
+    { label: 'Gas Price (Gwei)', value: '25', icon: <Gauge className="text-purple-400" size={24} /> },
+    { label: 'Transactions / sec', value: '15', icon: <Zap className="h-6 w-6 text-green-400" size={24} /> },
   ];
 
   const handleAnalysis = async (e: React.FormEvent) => { 
@@ -51,7 +51,7 @@ export default function OnchainDashboardPage() {
         </h1>
         
         <p className="text-lg text-slate-300 mb-12">
-          Phân tích bất kỳ Địa chỉ ví, Giao dịch, hoặc Hợp đồng thông minh nào trên mạng Ethereum.
+          Analyze any Wallet Address, Transaction, or Smart Contract on the Ethereum network.
         </p>
         <form onSubmit={handleAnalysis} className="w-full max-w-2xl mx-auto">
           <div className="relative">
@@ -62,7 +62,7 @@ export default function OnchainDashboardPage() {
               type="text"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="Nhập địa chỉ, TxHash, hoặc tên ENS..."
+              placeholder="Enter address, TxHash, or ENS name..."
               className="w-full p-4 pl-12 pr-32 rounded-full text-lg 
                          bg-slate-800/70 border-2 border-slate-600 
                          text-white placeholder-slate-400
@@ -82,7 +82,7 @@ export default function OnchainDashboardPage() {
               {isLoading ? ( 
                 <Loader2 className="h-5 w-5 animate-spin" />
               ) : (
-                'Phân tích'
+                'Analyze'
               )}
             </button>
           </div>

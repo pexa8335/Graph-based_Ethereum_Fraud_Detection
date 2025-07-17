@@ -1,5 +1,3 @@
-// src/components/dashboard/DashboardClient.tsx - PHIÊN BẢN NÂNG CẤP
-
 "use client";
 
 import {
@@ -16,14 +14,15 @@ import {
 import { useRouter } from "next/navigation";
 import LineChartClient from "./LineChartClient";
 import PieChartClient from "./PieChartClient";
+
 type RiskStatus = "High" | "Medium" | "Safe";
 type OnChainActivityType =
   | "Token Swap"
   | "NFT Mint"
-  | "Tương tác DeFi"
-  | "Gửi tiền ẩn danh"
-  | "Tương tác hợp đồng lạ"
-  | "Chuyển ETH/Token";
+  | "DeFi Interaction"
+  | "Anonymous Deposit"
+  | "Unknown Contract Interaction"
+  | "ETH/Token Transfer";
 
 interface OnChainTransaction {
   txHash: string;
@@ -35,36 +34,31 @@ interface OnChainTransaction {
   risk: number;
 }
 
-// --- KẾT THÚC ĐỊNH NGHĨA TYPE ---
-
-// =========================================================
-// ====>> BƯỚC 2: CẬP NHẬT MOCK DATA CHO ĐÚNG BỐI CẢNH <<====
-// =========================================================
-
 const DUMMY_STATS = [
   {
-    label: "Giao dịch rủi ro cao (24h)",
+    label: "High-Risk Transactions (24h)",
     value: "132",
     icon: <AlertTriangle className="h-6 w-6 text-red-400" />,
   },
   {
-    label: "Hợp đồng mới có rủi ro",
+    label: "New Risky Contracts",
     value: "18",
     icon: <SignalMedium className="h-6 w-6 text-yellow-400" />,
   },
   {
-    label: "Tổng giao dịch đã quét",
+    label: "Total Scanned Transactions",
     value: "3,102,482",
     icon: <ShieldCheck className="h-6 w-6 text-green-400" />,
   },
 ];
+
 const DUMMY_TRANSACTIONS: OnChainTransaction[] = [
   {
     txHash: "0x1a2b3c4d5e6f7g8h9i0j1k2l3m4n5o6p7q8r9s0t",
     to: "Tornado.Cash",
     value: 10.5,
     asset: "ETH",
-    activityType: "Gửi tiền ẩn danh",
+    activityType: "Anonymous Deposit",
     status: "High",
     risk: 98,
   },
@@ -91,7 +85,7 @@ const DUMMY_TRANSACTIONS: OnChainTransaction[] = [
     to: "Aave Lending Pool",
     value: 25.0,
     asset: "USDC",
-    activityType: "Tương tác DeFi",
+    activityType: "DeFi Interaction",
     status: "Safe",
     risk: 20,
   },
@@ -100,7 +94,7 @@ const DUMMY_TRANSACTIONS: OnChainTransaction[] = [
     to: "0xAb58...",
     value: 0.05,
     asset: "ETH",
-    activityType: "Chuyển ETH/Token",
+    activityType: "ETH/Token Transfer",
     status: "Safe",
     risk: 5,
   },
@@ -109,11 +103,12 @@ const DUMMY_TRANSACTIONS: OnChainTransaction[] = [
     to: "Unknown Contract",
     value: 0.1,
     asset: "ETH",
-    activityType: "Tương tác hợp đồng lạ",
+    activityType: "Unknown Contract Interaction",
     status: "High",
     risk: 88,
   },
 ];
+
 export default function DashboardClient() {
   const router = useRouter();
 
@@ -122,22 +117,21 @@ export default function DashboardClient() {
       case "High":
         return {
           icon: <AlertTriangle className="h-4 w-4" />,
-          text: "Rủi ro cao",
+          text: "High Risk",
           className: "bg-red-500/10 text-red-400 border border-red-500/20",
         };
       case "Medium":
         return {
           icon: <SignalMedium className="h-4 w-4" />,
-          text: "Cần xem xét",
+          text: "Medium Risk",
           className:
             "bg-yellow-500/10 text-yellow-400 border border-yellow-500/20",
         };
       case "Safe":
         return {
           icon: <ShieldCheck className="h-4 w-4" />,
-          text: "An toàn",
-          className:
-            "bg-green-500/10 text-green-400 border border-green-500/20",
+          text: "Safe",
+          className: "bg-green-500/10 text-green-400 border border-green-500/20",
         };
     }
   };
@@ -148,11 +142,11 @@ export default function DashboardClient() {
         return <Shuffle className="h-5 w-5 text-purple-400" />;
       case "NFT Mint":
         return <Image className="h-5 w-5 text-cyan-400" />;
-      case "Tương tác DeFi":
+      case "DeFi Interaction":
         return <Droplets className="h-5 w-5 text-blue-400" />;
-      case "Gửi tiền ẩn danh":
+      case "Anonymous Deposit":
         return <AlertTriangle className="h-5 w-5 text-red-400" />;
-      case "Tương tác hợp đồng lạ":
+      case "Unknown Contract Interaction":
         return <AlertTriangle className="h-5 w-5 text-yellow-400" />;
       default:
         return <ArrowRightLeft className="h-5 w-5 text-slate-400" />;
@@ -165,7 +159,7 @@ export default function DashboardClient() {
 
   return (
     <main className="p-4 sm:p-6 lg:p-8 bg-slate-900 text-white min-h-screen">
-      <h1 className="text-3xl font-bold mb-6">Tổng quan Mạng lưới Ethereum</h1>
+      <h1 className="text-3xl font-bold mb-6">Ethereum Network Overview</h1>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
         {DUMMY_STATS.map((stat) => (
           <div
@@ -184,36 +178,34 @@ export default function DashboardClient() {
         <div className="lg:col-span-3 bg-slate-800 border border-slate-700 rounded-lg p-6">
           <h2 className="text-lg font-semibold mb-4 flex items-center">
             <LineChart className="h-5 w-5 mr-2" />
-            Phân tích rủi ro theo thời gian
+            Risk Trend Over Time
           </h2>
           <div className="h-64">
-            {" "}
-            <LineChartClient />{" "}
+            <LineChartClient />
           </div>
         </div>
         <div className="lg:col-span-2 bg-slate-800 border border-slate-700 rounded-lg p-6">
           <h2 className="text-lg font-semibold mb-4 flex items-center">
             <PieChart className="h-5 w-5 mr-2" />
-            Phân loại hoạt động
+            Activity Breakdown
           </h2>
           <div className="h-64">
-            {" "}
-            <PieChartClient />{" "}
+            <PieChartClient />
           </div>
         </div>
       </div>
       <div className="bg-slate-800 border border-slate-700 rounded-lg">
         <div className="p-6">
-          <h2 className="text-lg font-semibold">Hoạt động On-chain Gần đây</h2>
+          <h2 className="text-lg font-semibold">Recent On-chain Activity</h2>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full text-left">
             <thead className="border-b border-slate-700 text-sm text-slate-400">
               <tr>
                 <th className="p-4 font-medium">Transaction</th>
-                <th className="p-4 font-medium">Loại hoạt động</th>
-                <th className="p-4 font-medium">Giá trị</th>
-                <th className="p-4 font-medium text-center">Mức độ rủi ro</th>
+                <th className="p-4 font-medium">Activity Type</th>
+                <th className="p-4 font-medium">Value</th>
+                <th className="p-4 font-medium text-center">Risk Level</th>
               </tr>
             </thead>
             <tbody>
@@ -229,7 +221,7 @@ export default function DashboardClient() {
                       <p className="font-semibold font-mono text-cyan-400">
                         {tx.txHash.slice(0, 8)}...{tx.txHash.slice(-6)}
                       </p>
-                      <p className="text-xs text-slate-500">Đến: {tx.to}</p>
+                      <p className="text-xs text-slate-500">To: {tx.to}</p>
                     </td>
                     <td className="p-4">
                       <div className="flex items-center gap-3">
