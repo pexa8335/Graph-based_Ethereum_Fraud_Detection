@@ -1,10 +1,11 @@
 'use client';
 import { useRouter } from 'next/navigation';
 import { Star, AlertTriangle, ShieldCheck, PlusCircle } from 'lucide-react';
+
 const MOCK_WATCHLIST = [
   { address: '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045', name: 'Vitalik Buterin', riskScore: 15, status: 'Safe' },
-  { address: '0x1a2b3c...d4e5', name: 'Ví Rủi ro cao', riskScore: 98, status: 'High' },
-  { address: '0xFEb4...c3dF', name: 'Ví Cá voi', riskScore: 45, status: 'Medium' },
+  { address: '0x1a2b3c...d4e5', name: 'High Risk Wallet', riskScore: 98, status: 'High' },
+  { address: '0xFEb4...c3dF', name: 'Whale Wallet', riskScore: 45, status: 'Medium' },
 ];
 
 export default function WatchlistClient() {
@@ -20,9 +21,9 @@ export default function WatchlistClient() {
   return (
     <main className="p-4 sm:p-6 lg:p-8 bg-slate-900 text-white min-h-screen">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold">Danh sách Theo dõi</h1>
+        <h1 className="text-3xl font-bold">Watchlist</h1>
         <button className="flex items-center gap-2 px-4 py-2 bg-cyan-500 text-black rounded-lg font-semibold hover:bg-cyan-400 transition-colors">
-          <PlusCircle size={20} /> Thêm mới
+          <PlusCircle size={20} /> Add New
         </button>
       </div>
 
@@ -43,7 +44,7 @@ export default function WatchlistClient() {
               </div>
               <div className="mt-4 pt-4 border-t border-slate-700 flex items-center gap-3">
                 <p className={`text-3xl font-bold ${getStatusColor(item.status)}`}>{item.riskScore}</p>
-                <p className="text-slate-300">Điểm rủi ro</p>
+                <p className="text-slate-300">Risk Score</p>
               </div>
             </div>
           ))}
@@ -51,8 +52,8 @@ export default function WatchlistClient() {
       ) : (
         <div className="text-center py-20 bg-slate-800 rounded-lg border border-dashed border-slate-700">
           <Star size={48} className="mx-auto text-slate-500" />
-          <h2 className="mt-4 text-xl font-semibold">Watchlist của bạn đang trống</h2>
-          <p className="text-slate-400 mt-2">Thêm một địa chỉ để bắt đầu theo dõi rủi ro của họ.</p>
+          <h2 className="mt-4 text-xl font-semibold">Your watchlist is empty</h2>
+          <p className="text-slate-400 mt-2">Add a wallet address to start monitoring its risk.</p>
         </div>
       )}
     </main>

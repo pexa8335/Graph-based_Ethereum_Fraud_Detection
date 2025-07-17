@@ -1,7 +1,6 @@
 import { AnalysisApiResponse } from '@/types/analysis';
-export interface AnalysisServiceResponse extends AnalysisApiResponse {
-}
-export async function fetchAnalysisData(address: string): Promise<AnalysisServiceResponse> {
+
+export async function fetchAnalysisData(address: string): Promise<AnalysisApiResponse> {
     console.log(`[Service] Bắt đầu phân tích cho: ${address}`);
     const apiUrl = `${process.env.NEXT_PUBLIC_APP_URL}/api/analyze`;
     try {
@@ -18,7 +17,7 @@ export async function fetchAnalysisData(address: string): Promise<AnalysisServic
         }
 
         console.log(`[Service] Nhận được kết quả phân tích thành công.`);
-        return result as AnalysisServiceResponse;
+        return result as AnalysisApiResponse;
 
     } catch (error) {
         if (error instanceof Error) {
