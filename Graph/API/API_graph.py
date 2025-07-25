@@ -23,7 +23,7 @@ from starlette.responses import StreamingResponse
 
 # --- CẤU HÌNH ---
 load_dotenv()
-FRAUD_API_URL = "http://127.0.0.1:8000/analyze"
+FRAUD_API_URL = "https://fraudgraphml-2nz2.onrender.com/analyze"
 ETHERSCAN_API_URL = "https://api.etherscan.io/api"
 ETHERSCAN_API_KEY = os.getenv("ETHERSCAN_API_KEY")
 
