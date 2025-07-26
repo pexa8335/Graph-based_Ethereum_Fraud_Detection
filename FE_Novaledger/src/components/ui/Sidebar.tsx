@@ -2,9 +2,10 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { LayoutDashboard, Star, History, FileText, LogOut } from 'lucide-react';
+import { Star, History, FileText, LogOut, LayoutDashboard } from 'lucide-react';
 const navItems = [
     { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
+    { name: 'Analyze', href: '/fraud', icon: LayoutDashboard },
     { name: 'WatchList', href: '/watchlist', icon: Star },
     { name: 'History', href: '/history', icon: History },
     { name: 'Docs', href: '/docs', icon: FileText },
