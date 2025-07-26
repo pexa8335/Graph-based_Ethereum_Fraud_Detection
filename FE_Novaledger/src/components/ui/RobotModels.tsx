@@ -1,28 +1,34 @@
+"use client";
 
-"use client"; // Đây là Client Component
+import React, { useRef, useEffect } from 'react'; 
+import { useGLTF, useAnimations } from '@react-three/drei';
+import { useFrame } from '@react-three/fiber'; 
+import * as THREE from 'three';
 
-import React, { useRef } from 'react';
-import { useGLTF } from '@react-three/drei';
-import * as THREE from 'three'; // Import Three.js để dùng các kiểu dữ liệu nếu cần
-
-// Cập nhật interface RobotModelsProps để bao gồm các thuộc tính
 interface RobotModelsProps {
-  position?: [number, number, number]; // Thêm thuộc tính position, là một tuple 3 số
-  scale?: number | [number, number, number]; // Thêm thuộc tính scale, có thể là 1 số hoặc tuple 3 số
-  // Bạn có thể thêm các props khác của Three.js Object3D vào đây nếu cần,
-  // ví dụ như rotation?: [number, number, number];
+  position?: [number, number, number];
+  scale?: number | [number, number, number];
 }
 
-// Component này sẽ tải và hiển thị mô hình robot
 const RobotModels: React.FC<RobotModelsProps> = (props) => {
-  // Đường dẫn đến tệp GLTF của bạn.
-  // Đảm bảo tệp này nằm trong thư mục 'public'
-  const { scene } = useGLTF('/robot_playground/scene.gltf');
-
-  // useGLTF trả về một đối tượng chứa scene, materials và animations.
-  // Chúng ta sẽ trực tiếp sử dụng scene.
-  // clone() để tránh các vấn đề nếu bạn muốn render nhiều instance của model
-  return <primitive object={scene.clone()} {...props} />;
+  const group = useRef<THREE.Group>(null); 
+  const { scene, animations } = useGLTF('/robot_playground/scene.gltf'); 
+  const { actions, mixer } = useAnimations(animations, group);
+  useEffect(() => {
+    if (animations && animations.length > 0) {
+      const firstAction = actions[animations[0].name];
+      if (firstAction) {
+        console.log(`Playing animation: ${animations[0].name}`);
+        firstAction.reset().fadeIn(0.5).play(); 
+      }
+    }
+    return () => {
+    };
+  }, [actions, animations, mixer]); 
+  useFrame((state, delta) => {
+    mixer.update(delta);
+  });
+  return <primitive ref={group} object={scene.clone()} {...props} />;
 };
 
 export default RobotModels;

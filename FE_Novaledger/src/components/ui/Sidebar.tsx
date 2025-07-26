@@ -2,10 +2,11 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Star, History, FileText, LogOut, LayoutDashboard } from 'lucide-react';
+import { Star, History, FileText, LogOut, LayoutDashboard, BarChart, Wallet } from 'lucide-react'; 
+
 const navItems = [
     { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
-    { name: 'Analyze', href: '/fraud', icon: LayoutDashboard },
+    { name: 'Analyze', href: '/fraud', icon: BarChart },
     { name: 'WatchList', href: '/watchlist', icon: Star },
     { name: 'History', href: '/history', icon: History },
     { name: 'Docs', href: '/docs', icon: FileText },
@@ -19,13 +20,15 @@ export default function Sidebar() {
                    bg-gradient-to-b from-slate-900 to-gray-900
                    border-r border-white/10 flex flex-col">
       <div className="flex items-center justify-center h-24 border-b border-white/10">
-        <Image src="/logo.png" alt="NovaLedger Logo" width={40} height={40} />
-        <span 
-          className="ml-3 text-2xl font-bold text-white"
-          style={{ textShadow: '0 1px 4px rgba(0,0,0,0.7)' }}
-        >
-          NovaLedger
-        </span>
+        <Link href="/" className="flex items-center group"> 
+          <Image src="/logo.png" alt="NovaLedger Logo" width={40} height={40} />
+          <span 
+            className="ml-3 text-2xl font-bold text-white group-hover:text-cyan-400 transition-colors duration-200" // Thêm styling hover
+            style={{ textShadow: '0 1px 4px rgba(0,0,0,0.7)' }}
+          >
+            NovaLedger
+          </span>
+        </Link>
       </div>
 
       <nav className="flex-grow p-4">
@@ -53,11 +56,11 @@ export default function Sidebar() {
       </nav>
       <div className="p-4 border-t border-white/10">
         <Link
-          href="/logout"
-          className="flex items-center gap-4 px-4 py-3 rounded-lg text-gray-300 hover:bg-red-500/20 hover:text-white transition-colors duration-200"
+          href="/connect-wallet" 
+          className="flex items-center gap-4 px-4 py-3 rounded-lg text-gray-300 hover:bg-blue-500/20 hover:text-white transition-colors duration-200"
         >
-          <LogOut size={20} />
-          <span className="text-sm font-medium">Log Out</span>
+          <Wallet size={20} /> 
+          <span className="text-sm font-medium">Connect Wallet</span>
         </Link>
       </div>
     </aside>
