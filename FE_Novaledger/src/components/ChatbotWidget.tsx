@@ -82,7 +82,7 @@ export default function ChatbotWidget() {
                       ? 'bg-cyan-500 text-white rounded-br-none'
                       : 'bg-slate-700 text-slate-200 rounded-bl-none'
                   }`}
-                >
+                > 
                   {msg.sender === 'bot' ? (
                     <ReactMarkdown>{msg.text}</ReactMarkdown>
                   ) : (
