@@ -89,41 +89,94 @@ def get_transactions(address: str) -> List[Dict[str, Any]]:
 
 
 def export_transactions_to_csv_buffer(transactions: List[Dict[str, Any]],
-                                      predictions: Dict[str, Dict[str, Any]]) -> io.StringIO:
-    print(f"\n📄 Đang làm giàu dữ liệu và tạo buffer CSV...")
+                                      predictions: Dict[str, Dict[str, Any]],
+                                      central_address: str) -> io.StringIO:
+    """
+    Làm giàu dữ liệu giao dịch với thông tin chi tiết, dự đoán và các trường phân tích,
+    sau đó xuất ra một buffer CSV trong bộ nhớ.
+    """
+    print(f"\n📄 Đang làm giàu dữ liệu và tạo buffer CSV chi tiết...")
     processed_data = []
+    central_address_lower = central_address.lower()
 
     def get_prediction_data(addr):
-        if not addr: return 'Contract Creation', 0.0
+        if not addr:
+            return 'Contract Creation', 0.0
         pred_result = predictions.get(addr.lower())
         if pred_result:
             return pred_result.get('prediction', 'Unknown'), pred_result.get('probability_fraud', 0.0)
-        # ⭐ Thay đổi: Ghi rõ là "Không thể dự đoán" cho các địa chỉ bị bỏ qua
         return 'Not Predicted', 0.0
 
     for tx in transactions:
-        from_addr, to_addr = tx.get('from', ''), tx.get('to', '')
-        if not from_addr: continue
+        from_addr = tx.get('from', '').lower()
+        to_addr = tx.get('to', '').lower()
+
+        if not from_addr:
+            continue
+
         from_pred, from_prob = get_prediction_data(from_addr)
         to_pred, to_prob = get_prediction_data(to_addr)
-        abnormality_score = from_prob + to_prob
+
+        # Cải thiện điểm rủi ro
+        transaction_risk_score = from_prob + to_prob
+
+        # Chuyển đổi giá trị và thời gian
         value_in_eth = int(tx.get('value', 0)) / 1e18
         timestamp = int(tx.get('timeStamp', 0))
-        date_time = datetime.fromtimestamp(timestamp).strftime('%Y-%m-%d %H:%M:%S')
+        date_time_utc = datetime.fromtimestamp(timestamp).strftime('%Y-%m-%d %H:%M:%S')
+
+        # --- CÁC CỘT MỚI ĐƯỢC THÊM VÀO ---
+        gas_used = int(tx.get('gasUsed', 0))
+        gas_price_wei = int(tx.get('gasPrice', 0))
+        transaction_fee_eth = (gas_used * gas_price_wei) / 1e18
+        gas_price_gwei = gas_price_wei / 1e9
+
+        # Xác định chiều giao dịch
+        if from_addr == central_address_lower:
+            direction = 'Outgoing'
+        elif to_addr == central_address_lower:
+            direction = 'Incoming'
+        else:
+            direction = 'Indirect'  # Giao dịch giữa 2 địa chỉ khác trong list
+
+        transaction_status = 'Success' if tx.get('isError') == '0' else 'Failed'
+        is_contract_creation = True if not to_addr else False
+        etherscan_url = f"https://etherscan.io/tx/{tx.get('hash', '')}"
+
         processed_data.append({
-            'TxHash': tx.get('hash', ''), 'DateTime': date_time, 'From_Address': from_addr,
-            'To_Address': to_addr if to_addr else "Contract Creation", 'Value_ETH': value_in_eth,
-            'From_Prediction': from_pred, 'From_Probability': from_prob, 'To_Prediction': to_pred,
-            'To_Probability': to_prob, 'Abnormality_Score': abnormality_score
+            'transaction_hash': tx.get('hash', ''),
+            'timestamp_utc': date_time_utc,
+            'block_number': tx.get('blockNumber', ''),
+            'direction': direction,
+            'from_address': from_addr,
+            'to_address': to_addr if to_addr else "Contract Creation",
+            'value_eth': value_in_eth,
+            # 'value_usd_at_time': Cần API giá lịch sử để thêm cột này
+            'transaction_fee_eth': round(transaction_fee_eth, 12),
+            'transaction_status': transaction_status,
+            'gas_price_gwei': round(gas_price_gwei, 2),
+            'gas_used': gas_used,
+            'is_contract_creation': is_contract_creation,
+            'from_address_prediction': from_pred,
+            'from_address_fraud_probability': from_prob,
+            'to_address_prediction': to_pred,
+            'to_address_fraud_probability': to_prob,
+            'transaction_risk_score': transaction_risk_score,
+            'etherscan_url': etherscan_url
         })
+
     if not processed_data:
         print("⚠️ Không có giao dịch nào để xuất.")
         return io.StringIO()
-    df = pd.DataFrame(processed_data).sort_values(by='Abnormality_Score', ascending=False)
+
+    # Sắp xếp theo điểm rủi ro giảm dần
+    df = pd.DataFrame(processed_data)
+    df = df.sort_values(by='transaction_risk_score', ascending=False)
+
     csv_buffer = io.StringIO()
     df.to_csv(csv_buffer, index=False, encoding='utf-8-sig')
     csv_buffer.seek(0)
-    print(f"✅ Đã tạo thành công buffer CSV với {len(df)} giao dịch.")
+    print(f"✅ Đã tạo thành công buffer CSV chi tiết với {len(df)} hàng và {len(df.columns)} cột.")
     return csv_buffer
 
 
@@ -266,7 +319,7 @@ async def create_graph_analysis(request: AnalysisRequest):
 
     print("\n✅ Dự đoán hoàn tất!")
 
-    csv_buffer = export_transactions_to_csv_buffer(transactions, predictions)
+    csv_buffer = export_transactions_to_csv_buffer(transactions, predictions, central_address)
     image_buffer = draw_transaction_graph_to_buffer(central_address, transactions, predictions)
 
     zip_buffer = io.BytesIO()
