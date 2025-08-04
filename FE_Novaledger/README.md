@@ -84,7 +84,7 @@ Luồng xử lý của NovaLedger là một ví dụ điển hình của một h
 
 1.  **Clone a repository:**
     ```bash
-    git clone https://github.com/Vanquoc0201/UEL_Attacker.git
+    git clone https://github.com/pexa8335/Graph-based_Ethereum_Fraud_Detection.git
     cd FE_NovaLedger
     ```
 
