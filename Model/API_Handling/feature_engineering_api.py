@@ -243,9 +243,7 @@ def calculate_all_features(address: str, all_txs: List[Dict[str, Any]], balance_
     # Loại bỏ các cột không cần thiết cho mô hình trước khi trả về
     columns_to_remove = [
         'Index',
-        'Address',
-        'ERC20 most sent token type',
-        'ERC20_most_rec_token_type'
+        'Address'
     ]
 
     for col in columns_to_remove:

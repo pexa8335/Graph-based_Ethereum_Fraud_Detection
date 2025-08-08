@@ -1,0 +1,96 @@
+{
+    "description": "Trained GNN model to detect Ethereum fraud transactions.",
+    "timestamp_utc": "2025-08-08T13:07:57.314397",
+    "model_class_name": "ImprovedFraudGNN",
+    "paths": {
+        "preprocessing_pipeline": "deployment_artifacts/preprocessing_pipeline.pkl",
+        "model_weights": "deployment_artifacts/fraud_gnn_weights.pth"
+    },
+    "performance": {
+        "best_validation_f1_fraud": 0.8703108252947481,
+        "final_test_report": {
+            "Normal": {
+                "precision": 0.983739837398374,
+                "recall": 0.9502617801047121,
+                "f1-score": 0.966711051930759,
+                "support": 764.0
+            },
+            "Fraud": {
+                "precision": 0.8461538461538461,
+                "recall": 0.9457013574660633,
+                "f1-score": 0.8931623931623932,
+                "support": 221.0
+            },
+            "accuracy": 0.949238578680203,
+            "macro avg": {
+                "precision": 0.9149468417761101,
+                "recall": 0.9479815687853876,
+                "f1-score": 0.9299367225465761,
+                "support": 985.0
+            },
+            "weighted avg": {
+                "precision": 0.9528702901242211,
+                "recall": 0.949238578680203,
+                "f1-score": 0.9502092716385674,
+                "support": 985.0
+            }
+        }
+    },
+    "features": {
+        "original_features_count": 49,
+        "dropped_features": [
+            "Index",
+            "Address"
+        ],
+        "final_features_list": [
+            "Avg min between sent tnx",
+            "Avg min between received tnx",
+            "Time Diff between first and last (Mins)",
+            "Sent tnx",
+            "Received Tnx",
+            "Number of Created Contracts",
+            "Unique Received From Addresses",
+            "Unique Sent To Addresses",
+            "min value received",
+            "max value received",
+            "avg val received",
+            "min val sent",
+            "max val sent",
+            "avg val sent",
+            "min value sent to contract",
+            "max val sent to contract",
+            "avg value sent to contract",
+            "total transactions (including tnx to create contract",
+            "total Ether sent",
+            "total ether received",
+            "total ether sent contracts",
+            "total ether balance",
+            "Total ERC20 tnxs",
+            "ERC20 total Ether received",
+            "ERC20 total ether sent",
+            "ERC20 total Ether sent contract",
+            "ERC20 uniq sent addr",
+            "ERC20 uniq rec addr",
+            "ERC20 uniq sent addr.1",
+            "ERC20 uniq rec contract addr",
+            "ERC20 avg time between sent tnx",
+            "ERC20 avg time between rec tnx",
+            "ERC20 avg time between rec 2 tnx",
+            "ERC20 avg time between contract tnx",
+            "ERC20 min val rec",
+            "ERC20 max val rec",
+            "ERC20 avg val rec",
+            "ERC20 min val sent",
+            "ERC20 max val sent",
+            "ERC20 avg val sent",
+            "ERC20 min val sent contract",
+            "ERC20 max val sent contract",
+            "ERC20 avg val sent contract",
+            "ERC20 uniq sent token name",
+            "ERC20 uniq rec token name",
+            "ERC20 most sent token type",
+            "ERC20_most_rec_token_type"
+        ],
+        "final_features_count": 47
+    }
+}

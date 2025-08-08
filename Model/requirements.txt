@@ -1,0 +1,10 @@
+torch
+torch-geometric
+joblib
+fastapi
+uvicorn
+httpx
+pandas
+numpy
+scikit-learn
+python-dotenv
