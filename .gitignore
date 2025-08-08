@@ -24,7 +24,7 @@
 /models/
 /vector_store/
 *.pkl
-
+!Model/Model/full_pipeline.pkl
 # 4. FILE DO PYTHON & CÁC CÔNG CỤ TẠO RA (CACHE)
 __pycache__/
 *.pyc
