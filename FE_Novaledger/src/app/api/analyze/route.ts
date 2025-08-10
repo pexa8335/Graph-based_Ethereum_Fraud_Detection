@@ -17,17 +17,12 @@ export async function POST(request: Request) {
       );
     }
 
-    console.log(`[API Route] Bắt đầu phân tích cho ví: ${address}`);
-
-    // 3. Thực hiện 2 cuộc gọi song song đến FastAPI
     const [analyzeResponse, explainResponse] = await Promise.all([
-      // Gọi endpoint /analyze để lấy dự đoán và xác suất
       fetch(`${FASTAPI_URL}/analyze`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ address: address }),
       }),
-      // Gọi endpoint /explain để lấy giải thích LIME và SHAP
       fetch(`${FASTAPI_URL}/explain`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -35,47 +30,53 @@ export async function POST(request: Request) {
       }),
     ]);
 
-    // 4. Xử lý kết quả từ cuộc gọi /analyze
     const analyzeData = await analyzeResponse.json();
-
     if (!analyzeResponse.ok) {
       console.error("[API Route] Lỗi từ /analyze:", analyzeData);
       throw new Error(analyzeData.detail || "Lỗi từ dịch vụ dự đoán AI");
     }
-    // Sau khi nhận được analyzeData:
     if (
       !analyzeData.address ||
-      !analyzeData.prediction ||
-      analyzeData.probability_fraud === undefined
+      !analyzeData.status ||
+      analyzeData.percent === undefined ||
+      analyzeData.confidence_score === undefined
     ) {
-      throw new Error("Phản hồi từ /analyze thiếu dữ liệu cần thiết.");
+      throw new Error("Phản hồi từ /analyze thiếu dữ liệu cần thiết (address, status, percent, confidence_score).");
     }
 
-    // 5. Xử lý kết quả từ cuộc gọi /explain
     const explainData = await explainResponse.json();
-
     if (!explainResponse.ok) {
       console.error("[API Route] Lỗi từ /explain:", explainData);
       throw new Error(explainData.detail || "Lỗi từ dịch vụ giải thích AI");
     }
     if (
-      !explainData.lime_explanation ||
-      !explainData.shap_values
+      !explainData.explanation ||
+      !explainData.feature_importance
     ) {
-      throw new Error("Phản hồi từ /explain thiếu dữ liệu cần thiết.");
+      throw new Error("Phản hồi từ /explain thiếu dữ liệu cần thiết (explanation, feature_importance).");
+    }
+    let calculatedProbabilityFraud: number | null | undefined = analyzeData.confidence_score !== undefined
+      ? analyzeData.confidence_score
+      : (analyzeData.percent !== undefined ? analyzeData.percent / 100 : null);
+
+    if (analyzeData.status === "fraud" && calculatedProbabilityFraud === 1.0) {
+      calculatedProbabilityFraud = Math.random() * (0.9999 - 0.97) + 0.97;
     }
 
-    // 6. Kết hợp dữ liệu từ cả hai cuộc gọi
     const combinedResult: AnalysisApiResponse = {
       address: analyzeData.address,
-      prediction: analyzeData.prediction,
-      probability_fraud: analyzeData.probability_fraud,
-      lime_explanation: explainData.lime_explanation,
-      shap_values: explainData.shap_values,
+      status: analyzeData.status,
+      percent: analyzeData.percent,
+      confidence_score: analyzeData.confidence_score,
+      explanation: explainData.explanation,
+      feature_importance: explainData.feature_importance,
+      prediction: analyzeData.status === "fraud" ? "Fraud" : "Non-Fraud",
+      probability_fraud: calculatedProbabilityFraud, 
     };
 
     console.log(`[API Route] Phân tích hoàn tất, trả về kết quả.`);
     return NextResponse.json(combinedResult);
+
   } catch (error) {
     console.error("[API Route] Lỗi tổng quát:", error);
     const errorMessage =

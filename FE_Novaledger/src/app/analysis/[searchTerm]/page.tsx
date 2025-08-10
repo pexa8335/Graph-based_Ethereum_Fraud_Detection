@@ -39,8 +39,8 @@ export default async function AnalysisPage({
           </h1>
         </div>
         <SummaryPanel result={analysisResult} />
-        {analysisResult.shap_values && (
-          <StatsPanel features={analysisResult.shap_values} />
+        {analysisResult.feature_importance && (
+          <StatsPanel features={analysisResult.feature_importance} />
         )}
         <GraphDisplay address={address} />
       </div>

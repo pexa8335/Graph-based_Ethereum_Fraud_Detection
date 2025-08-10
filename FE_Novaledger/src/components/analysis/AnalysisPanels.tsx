@@ -1,22 +1,14 @@
-import { AnalysisApiResponse } from "@/types/analysis";
+import { AnalysisApiResponse, FeatureCardProps } from "@/types/analysis";
 import { featureExplanations } from "@/data/featureExplanations";
 import { InfoTooltip } from "@/components/ui/InfoTooltip";
 import { AlertTriangle, CheckCircle, Activity } from "lucide-react";
 import React from "react";
-
-interface FeatureCardProps {
-  label: string;
-  featureKey: string;
-  value: any;
-}
-
 export const FeatureCard = ({ label, featureKey, value }: FeatureCardProps) => {
   const explanation =
     featureExplanations[featureKey as keyof typeof featureExplanations] ||
     "No detailed explanation available.";
 
   const formatValue = (val: any): React.JSX.Element => {
-    // If value is null, undefined, "null", "N/A", or -1, return 0
     if (val === null || val === undefined || val === "null" || val === "N/A" || val === -1) {
       return <span>0</span>;
     }
@@ -54,23 +46,20 @@ interface SummaryPanelProps {
 export const SummaryPanel = ({ result }: SummaryPanelProps) => {
   const isFraudulent = result.prediction === "Fraud";
   const confidence = result.probability_fraud ?? 0;
+  const featureImportanceEntries = result.feature_importance
+    ? Object.entries(result.feature_importance)
+    : [];
 
-  const summaryPoints = (result.lime_explanation || [])
-    .slice(0, 5)
-    .map(([featureString, weight]) => {
-      const cleanedFeatureName = featureString
-        .split(/ (<=|>|==|!=|>=) /)[0]
-        .replace(/_/g, " ")
-        .trim();
-      const detailedExplanation =
-        featureExplanations[
-          cleanedFeatureName as keyof typeof featureExplanations
-        ] || "A key indicator influencing the result.";
+  const sortedImportantFeatures = featureImportanceEntries
+    .sort(([, weightA], [, weightB]) => Math.abs(weightB) - Math.abs(weightA)) 
+    .slice(0, 3);
 
-      return `The factor "${cleanedFeatureName}" (${
-        detailedExplanation.split(".")[0]
-      }) is one of the key indicators influencing the result.`;
-    });
+  const summaryPoints = sortedImportantFeatures.map(([featureKey, weight]) => {
+    const detailedExplanation =
+      featureExplanations[featureKey as keyof typeof featureExplanations] ||
+      "A key indicator influencing the result."
+    return `The factor "${featureKey.replace(/_/g, " ").trim()}" (Importance: ${weight.toFixed(2)}) is one of the key indicators influencing the result. ${detailedExplanation}`;
+  });
 
   if (summaryPoints.length === 0) {
     summaryPoints.push(
@@ -107,7 +96,7 @@ export const SummaryPanel = ({ result }: SummaryPanelProps) => {
         </p>
       </div>
       <div className="flex-1 border-t-2 md:border-t-0 md:border-l-2 pt-6 md:pt-0 md:pl-8 border-white/10">
-        <h3 className="font-bold text-xl mb-3">Key Insights (From AI)</h3>
+        <h3 className="font-bold text-xl mb-3">Key Insights</h3>
         <ul className="space-y-2 list-disc list-inside text-slate-300">
           {summaryPoints.map((point, i) => (
             <li key={i}>{point}</li>
@@ -124,7 +113,6 @@ interface StatsPanelProps {
 
 export const StatsPanel = ({ features }: StatsPanelProps) => {
   const allStats = [
-    // General Stats & Timing
     [
       "Total Transactions",
       "total transactions (including tnx to create contract",
@@ -138,7 +126,6 @@ export const StatsPanel = ({ features }: StatsPanelProps) => {
     ["Avg Time Sent (Mins)", "Avg min between sent tnx"],
     ["Avg Time Received (Mins)", "Avg min between received tnx"],
 
-    // Value Analysis (ETH & ERC20)
     ["Total ETH Sent", "total Ether sent"],
     ["Total ETH Received", "total ether received"],
     ["Current ETH Balance", "total ether balance"],
@@ -152,7 +139,6 @@ export const StatsPanel = ({ features }: StatsPanelProps) => {
     ["Max ETH Sent to Contract", "max val sent to contract"],
     ["Avg ETH Sent to Contract", "avg value sent to contract"],
 
-    // ERC20 Stats
     ["Total ERC20 Txs", "Total ERC20 tnxs"],
     ["Unique Sent Tokens", "ERC20 uniq sent token name"],
     ["Unique Received Tokens", "ERC20 uniq rec token name"],
@@ -181,7 +167,6 @@ export const StatsPanel = ({ features }: StatsPanelProps) => {
   ] as const;
 
   const formatValue = (val: any): React.JSX.Element => {
-    // If value is null, undefined, "null", "N/A", or -1, return 0
     if (val === null || val === undefined || val === "null" || val === "N/A" || val === -1) {
       return <span>0</span>;
     }
@@ -201,8 +186,8 @@ export const StatsPanel = ({ features }: StatsPanelProps) => {
       <h2 className="text-xl font-bold tracking-wider text-cyan-400 flex items-center">
         <Activity className="mr-2" /> Detailed Feature Statistics
       </h2>
-      <p className="text-sm text-slate-400 mb-4">
-        *Note: The values here represent the influence (SHAP value) of each feature on the prediction, not the raw feature value.*
+      <p className="text-xs italic text-slate-400 mb-4">
+       The values here represent the influence (Weight-based) of each feature on the prediction, not the raw feature value
       </p>
       <div className="overflow-x-auto">
         <table className="w-full text-left border-collapse">
@@ -212,7 +197,7 @@ export const StatsPanel = ({ features }: StatsPanelProps) => {
                 Feature
               </th>
               <th className="px-4 py-3 font-medium text-slate-400 w-1/4">
-                SHAP Value
+                Weight-based
               </th>
               <th className="px-4 py-3 font-medium text-slate-400 w-auto">
                 Explanation

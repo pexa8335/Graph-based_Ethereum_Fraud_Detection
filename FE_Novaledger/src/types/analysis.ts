@@ -9,8 +9,16 @@ export interface CovalentTransaction {
 }
 export interface AnalysisApiResponse {
   address: string;
+  status?: string; 
+  percent?: number; 
+  confidence_score?: number; 
+  explanation?: string;
+  feature_importance?: { [key: string]: number }; 
   prediction?: 'Fraud' | 'Non-Fraud' | null;
-  probability_fraud?: number | null;
-  lime_explanation?: Array<[string, number]>;
-  shap_values?: { [key: string]: number };
+  probability_fraud?: number | null; 
+}
+export interface FeatureCardProps {
+  label: string;
+  featureKey: string;
+  value: any;
 }

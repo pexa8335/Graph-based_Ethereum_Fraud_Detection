@@ -1,16 +1,10 @@
-// src/components/ui/Sidebar.tsx
 'use client';
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-// Import useState và useEffect
 import React, { useState, useEffect } from 'react';
-// Import icon Wallet
 import { Star, History, FileText, LogOut, LayoutDashboard, BarChart, Wallet } from 'lucide-react'; 
-// Import dịch vụ ví của bạn
 import { connectWalletSimple } from '@/services/walletService'; 
-// Bỏ import Web3Button vì không dùng web3modal nữa
-// import { Web3Button } from '@web3modal/wagmi/react'; 
 
 const navItems = [
     { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
@@ -63,11 +57,11 @@ export default function Sidebar() {
       <div className="flex items-center justify-center h-24 border-b border-white/10">
         <Link href="/" className="flex items-center group">
           <Image src="/logo.png" alt="NovaLedger Logo" width={40} height={40} />
-          <span 
-            className="ml-3 text-2xl font-bold text-white group-hover:text-cyan-400 transition-colors duration-200"
-            style={{ textShadow: '0 1px 4px rgba(0,0,0,0.7)' }}
+          <span
+            className="ml-3 text-2xl font-bold text-slate-100 group-hover:text-cyan-400 transition-colors duration-200"
+            style={{ textShadow: '0 0 8px rgba(34, 211, 238, 0.6), 0 0 15px rgba(34, 211, 238, 0.3)' }}
           >
-            NovaLedger
+            Aegis Intelligence
           </span>
         </Link>
       </div>
