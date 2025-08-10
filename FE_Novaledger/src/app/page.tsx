@@ -35,7 +35,7 @@ export default function HomePage() {
         <h1 className="text-5xl md:text-6xl font-extrabold mb-4 tracking-wide text-white drop-shadow-lg"
             style={{ textShadow: '0px 0px 15px rgba(0, 255, 255, 0.4)' }}
         >
-          Welcome to NovaLedger
+          Welcome to Aegis Intelligence
         </h1>
         <Link href="/fraud" passHref>
           <button className="px-10 py-4 text-xl font-bold uppercase tracking-wider

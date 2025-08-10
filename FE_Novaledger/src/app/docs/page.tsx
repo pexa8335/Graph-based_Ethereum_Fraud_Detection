@@ -49,7 +49,7 @@ export default function DocsPage() {
     return (
         <main className="p-4 sm:p-6 lg:p-8 bg-slate-900 text-white min-h-screen">
             <div className="max-w-4xl mx-auto">
-                <h1 className="text-4xl font-bold text-center mb-4">How does NovaLedger work?</h1>
+                <h1 className="text-4xl font-bold text-center mb-4">How does Aegis Intelligence work?</h1>
                 <p className="text-lg text-slate-400 text-center mb-12">
                     Learn about the architecture and end-to-end data flow of our intelligent on-chain analysis platform.
                 </p>

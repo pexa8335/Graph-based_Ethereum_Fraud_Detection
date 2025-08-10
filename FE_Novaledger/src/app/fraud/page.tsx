@@ -47,7 +47,7 @@ export default function OnchainDashboardPage() {
           className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-4"
           style={{ textShadow: '0 3px 15px rgba(0, 255, 255, 0.3)' }}
         >
-          NovaLedger On-chain Intelligence
+          Aegis Intelligence On-chain 
         </h1>
         
         <p className="text-lg text-slate-300 mb-12">

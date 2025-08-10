@@ -20,7 +20,7 @@ const TEXT_COLOR_SECONDARY = 'text-slate-400';
 export default function ChatbotComponent() {
   const [input, setInput] = useState("");
   const [messages, setMessages] = useState<Message[]>([
-    { text: "Hello! I am the Nova Assistant. How can I help you today?", sender: "bot" }
+    { text: "Hello! I am the Aegis Assistant. How can I help you today?", sender: "bot" }
   ]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
@@ -44,8 +44,8 @@ export default function ChatbotComponent() {
     const currentInput = input;
     setInput("");
     setIsLoading(true);
-    setError(''); // Clear previous errors
-    setThinkingProcess(''); // Clear previous thinking process
+    setError(''); 
+    setThinkingProcess('');
 
     try {
       const response = await fetch(`${FASTAPI_BASE_URL}/api/v1/chat`, {
@@ -83,7 +83,7 @@ export default function ChatbotComponent() {
       <div className={`flex justify-between items-center p-3 ${BG_DARK} ${BORDER_COLOR} border-b rounded-t-lg`}>
         <h3 className={`text-white font-semibold flex items-center gap-2`}>
           <Bot size={20} className={`text-${ACCENT_COLOR}-400`}/>
-          Nova Assistant
+          Aegis Assistant
         </h3>
       </div>
 
