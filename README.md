@@ -1,246 +1,207 @@
-# FraudGraphML: Blockchain Fraud Detection System
+*An AI-powered On-chain Risk Analysis and Prediction System, developed for the UEL Attacker 2025 competition.*
 
+---
 
-## 📋 Overview
+## 🚀 Introduction
 
-FraudGraphML is a comprehensive blockchain fraud detection system that combines machine learning with graph-based analysis to identify suspicious activities and fraudulent transactions on the Ethereum network. The system employs a hybrid approach, utilizing both traditional machine learning techniques and graph network analysis to provide real-time fraud detection and visualization.
+In the burgeoning landscape of digital assets, identifying the safety and risk levels of blockchain entities (wallets, smart contracts, transactions) has become more complex and critical than ever. **NovaLedger** emerges with the mission of bringing transparency and security to users within the Ethereum ecosystem by providing an intelligent, intuitive, and robust on-chain analysis platform.
 
-## 🏗️ System Architecture
+This project employs an end-to-end data processing pipeline, from raw on-chain data collection and enrichment to the application of advanced machine learning models, delivering highly accurate risk predictions.
 
-The project is structured into four main components:
+## ✨ Key Features
 
-### 1. Machine Learning Model (ML Model/)
-- **Training Process**: 
-  - Jupyter notebooks for model training and evaluation
-  - Uses historical transaction data for fraud pattern recognition
-  - Implements advanced ML algorithms (RandomForest, etc.)
-  - Features both supervised learning and anomaly detection techniques
+NovaLedger is built around three core pages, creating a seamless and focused user experience:
 
-- **API Handling**: 
-  - FastAPI-based REST API for model serving
-  - Endpoints for transaction analysis and fraud prediction
-  - Real-time processing of wallet addresses and transactions
-  - Returns prediction probabilities and explanatory features
+#### 1. **Homepage - On-chain Intelligence Hub** (`HomePage`)
+- **Purpose:** Serves as the primary gateway to the entire system, focused on a single action: initiating an investigation.
+- **Features:**
+    - A large, prominent search bar allowing users to input any wallet address, transaction hash (TxHash), or ENS domain.
+    - Displays real-time Ethereum network parameters, creating a sense of a "live" and dynamic tool.
 
-### 2. Graph Analysis System (Graph/)
-- **Transaction Network Visualization**:
-  - Interactive network graphs using PyVis
-  - Visual representation of transaction patterns
-  - Color-coded nodes based on fraud probability
-  - Edge weights representing transaction values
+![Homepage Screenshot](./FE_Novaledger/public/HomePage.jpg)
 
-- **Features**:
-  - Real-time graph generation
-  - Interactive node exploration
-  - Direct links to Etherscan for transaction verification
-  - Asynchronous processing for improved performance
+#### 2. **Dashboard - Ethereum Monitoring Station** (`DashboardPage`)
+- **Purpose:** Provides a "control room" for in-depth users, offering a comprehensive overview of ongoing risky activities across the network.
+- **Features:**
+    - Visual charts that illustrate risk trends over time and categorize various types of on-chain activities.
+    - A continuously updated list of suspicious transactions, allowing users to click for detailed analysis.
 
-### 3. Frontend Interface (FE_Novaledger/)
-- **User Interface**:
-  - TypeScript-based frontend
-  - Interactive dashboard for result visualization
-  - Real-time transaction monitoring
-  - Risk assessment displays
+![Dashboard Screenshot](./FE_Novaledger/public/DashboardPage.png)
 
-- **Features**:
-  - Address analysis interface
-  - Transaction history visualization
-  - Risk score display
-  - Explainable AI visualizations
+#### 3. **Analysis Page - Deep Dive Forensics View** (`AnalysisPage`)
+- **Purpose:** This is the "heart" of the product, displaying detailed analysis results after a user performs a search.
+- **Features:**
+    - **Risk Gauge Chart:** Visualizes the overall risk score (from 0-100).
+    - **Risk Factors:** Lists detailed reasons why an address or transaction is considered risky, powered by Explainable AI.
+    - **Interactive Network Graph:** A visual diagram of the relationships and interactions of the analyzed entity with other wallets and contracts.
 
-### 4. RAG Chatbot System (RAG_Chatbot/)
-- **Knowledge Base**:
-  - Comprehensive documentation
-  - Blockchain anomaly detection information
-  - System usage guides
-  - Technical explanations
+![Analysis Screenshot](./FE_Novaledger/public/AnalysisPage.png)
 
-## 🔧 Technical Stack
+Additionally, NovaLedger includes:
+*   **Watchlist:** Allows users to monitor specific addresses over time for changes in risk profile.
+*   **History:** Provides a record of past analysis requests.
+*   **Docs Page (`DocsPage.png`):** Offers comprehensive documentation, usage guides, and technical explanations of the system's underlying mechanisms.
+*   **Connect Wallet:** Functionality to connect the user's Web3 wallet for personalized features.
 
-- **Languages**:
-  - Python (95.7% - ML & Graph Analysis)
-  - TypeScript (1.8% - Frontend)
-  - Jupyter Notebooks (Model Development)
-  - PowerShell (0.6% - Scripts)
+## 🛠️ Technologies Used
 
-- **Key Libraries & Frameworks**:
-  - FastAPI (API Development)
-  - PyVis (Graph Visualization)
-  - aiohttp (Async HTTP Client)
-  - NetworkX (Graph Analysis)
+*   **Frontend:**
+    *   **Next.js:** React framework for building full-stack applications, supporting Server-Side Rendering (SSR) and API Routes.
+    *   **React:** JavaScript library for building user interfaces.
+    *   **TypeScript:** Superset of JavaScript for type safety and improved developer experience.
+    *   **Tailwind CSS:** Utility-first CSS framework for rapid and highly customizable UI design.
+    *   **Lucide-React:** A collection of beautiful and lightweight SVG icons.
 
-## 🔍 Key Features
+*   **Backend & API:**
+    *   **Python (FastAPI):** A modern, fast (high-performance) web framework for building APIs for the Machine Learning models.
+    *   **Uvicorn:** ASGI server for running FastAPI applications.
+    *   **Pydantic:** Data validation and settings management for Python using type hints.
+    *   **httpx:** A fully featured HTTP client for Python, used for making asynchronous requests to external APIs.
+    *   **Next.js API Routes:** Acts as a Backend-for-Frontend (BFF) layer, securely proxying requests from the frontend to the Python FastAPI backend and processing responses.
 
-1. **Fraud Detection**:
-   - Real-time transaction analysis
-   - Machine learning-based prediction
-   - Probability scoring for suspicious activities
-   - Explainable AI results
+*   **Data & AI:**
+    *   **Covalent API:** A third-party service for fetching raw on-chain data from Ethereum.
+    *   **Python (Pandas, NumPy):** Used for data manipulation, cleaning, and Feature Engineering.
+    *   **PyTorch / PyTorch Geometric:** Deep learning frameworks for building and training advanced fraud prediction models (specifically Graph Neural Networks).
+    *   **scikit-learn / joblib:** Libraries for traditional machine learning models and efficient model serialization/deserialization.
 
-2. **Graph Analysis**:
-   - Interactive transaction network visualization
-   - Node relationship analysis
-   - Pattern detection in transaction flows
-   - Visual risk indicators
+*   **Graph Visualization:**
+    *   **PyVis:** Python library for interactive network visualization (integrated via FastAPI).
 
-3. **API Integration**:
-   - RESTful API endpoints
-   - Blockchain data retrieval
-   - Real-time wallet analysis
-   - Etherscan integration
+*   **Notifications:**
+    *   **Telegram Bot API:** For sending automated alerts.
 
-4. **User Interface**:
-   - Interactive dashboard
-   - Transaction monitoring
-   - Risk assessment visualization
-   - Historical analysis tools
+## 🌊 Detailed Project Flow
 
-## 🚀 Getting Started
+NovaLedger's processing flow exemplifies a modern AI system, integrating multiple services to deliver comprehensive analysis results.
 
-1. **Clone the Repository**:
-   ```bash
-   git clone https://github.com/pexa8335/FraudGraphML.git
-   cd FraudGraphML
-   ```
+**Step-by-step breakdown:**
 
-2. **Install Dependencies**:
-   ```bash
-   # Set up Python environment
-   python -m venv venv
-   source venv/bin/activate  # or `venv\Scripts\activate` on Windows
-   pip install -r requirements.txt
+1.  **Initiation (Homepage):**
+    *   The user enters a wallet address into the search bar and clicks "Analyze".
 
-   # Set up Frontend
-   cd FE_Novaledger
-   npm install
-   ```
+2.  **Navigation (Frontend - Next.js):**
+    *   The frontend uses Next.js's `useRouter` to navigate the user to the dynamic analysis page, e.g., `/analysis/0x...`.
 
-3. **Environment Setup**:
-   ```bash
-   # Create .env file
-   ETHERSCAN_API_KEY=your_api_key
-   FRAUD_API_URL=http://127.0.0.1:8000/analyze
-   ```
+3.  **Analysis Request (Frontend -> Next.js API Route):**
+    *   The `AnalysisPage` is rendered. Its client-side component (e.g., `DashboardClient` or an `AnalysisClient` internally) sends an asynchronous `POST` request to the project's internal Next.js API route: `/api/analyze`. This request contains the wallet address to be analyzed.
 
-4. **Run the System**:
-   ```bash
-   # Start ML API
-   cd ML\ Model/API_Handling
-   uvicorn main_api:app --reload
+4.  **Secure Proxy & Orchestration (Next.js API Route -> FastAPI Backend):**
+    *   The Next.js API route (`src/app/api/analyze/route.ts`) receives the request. This is where the secure and complex logic orchestrates the backend communication:
+        *   **4a. Data Retrieval (FastAPI calls Covalent):** The Next.js API route forwards the request to your deployed Python FastAPI backend (e.g., `https://graph-based-ethereum-fraud-detection.onrender.com/analyze` and `/explain`). The FastAPI backend then uses your `COVALENT_API_KEY` to call the Covalent API, requesting all relevant on-chain data for the given wallet address.
+        *   **4b. Feature Engineering (FastAPI):** The FastAPI server processes the raw JSON data received from Covalent, extracting and calculating the necessary features (e.g., 50 features) required by the AI model.
+        *   **4c. AI Model Prediction (FastAPI):** The FastAPI server feeds these engineered features into its loaded ML model (running in the same FastAPI process) for fraud prediction and explanation.
+        *   **4d. Structured Response (FastAPI to Next.js API Route):** The FastAPI server returns the prediction results (e.g., status, confidence, percent) and feature explanations (e.g., `feature_importance`) as structured JSON back to the Next.js API route.
 
-   # Start Frontend
-   cd FE_Novaledger
-   npm run dev
-   ```
+5.  **Result Delivery (Next.js API Route -> Frontend):**
+    *   The Next.js API route receives the combined results from FastAPI and sends them back to the user's browser as a single JSON object.
 
-## 📊 System Flow
+6.  **Display (Frontend):**
+    *   The client-side component (e.g., `AnalysisClient`) receives the JSON results, updates its state, and renders the `SummaryPanel` (risk assessment, key insights), `StatsPanel` (detailed feature statistics), and `GraphDisplay` (interactive network visualization) for the user.
+    *   For specific high-risk addresses (e.g., `SCAM_WALLET_ADDRESS`), a Telegram alert is dispatched.
 
-1. User inputs an Ethereum address for analysis
-2. System retrieves transaction history via Etherscan API
-3. ML model processes the address and related transactions
-4. Graph analysis generates interactive network visualization
-5. Results are displayed with fraud probability and explanations
-6. User can explore transaction patterns and related addresses
+## ⚡ Installation & Running the Project
 
-## 🔐 Security Features
+1.  **Clone the repository:**
+    ```bash
+    git clone https://github.com/pexa8335/Graph-based_Ethereum_Fraud_Detection.git
+    cd Graph-based_Ethereum_Fraud_Detection
+    ```
 
-- Fraud probability thresholds:
-  - High Risk: > 0.6
-  - Medium Risk: 0.4 - 0.6
-  - Low Risk: < 0.4
+2.  **Frontend Setup (NovaLedger UI)**
 
-## 📈 Performance
+    a. **Navigate to the frontend directory:**
+    ```bash
+    cd FE_Novaledger
+    ```
 
-- Asynchronous processing for multiple addresses
-- Real-time transaction analysis
-- Interactive visualization rendering
-- Scalable API architecture
+    b. **Create environment file:**
+    - Create a file named `.env.local` in the `FE_Novaledger` root directory.
+    - Add the necessary environment variables:
+      ```env
+      NEXT_PUBLIC_APP_URL=http://localhost:3000
+      GRAPHAPI_URL=https://your-graph-url.com # Your deployed Graph Analysis API URL
+      NEXT_PUBLIC_FASTAPI_BASE_URL=https://your-rag-chatbot.onrender.com # Your deployed RAG Chatbot API URL
+      ```
 
-## 📚 Documentation
+    c. **Install dependencies:**
+    ```bash
+    npm install # or yarn install
+    ```
 
-Detailed documentation is available in the RAG_Chatbot/knowledge_docs directory, covering:
-- Blockchain anomaly detection methods
-- System architecture details
-- API specifications
-- Usage guidelines
+    d. **Run the development server:**
+    ```bash
+    npm run dev # or yarn dev
+    ```
+    The frontend application will be accessible at `http://localhost:3000`.
+
+3.  **Backend Setup (FastAPI & ML Models)**
+
+    a. **Navigate to the backend API directory:**
+    ```bash
+    cd Model/API_Handling
+    ```
+
+    b. **Create environment file:**
+    - Create a file named `.env` in the `Model/API_Handling` directory.
+    - Add the necessary environment variables:
+      ```env
+      COVALENT_API_KEY=YOUR_COVALENT_API_KEY_HERE # Obtain from CovalentHQ
+      TELEGRAM_BOT_TOKEN=YOUR_TELEGRAM_BOT_TOKEN # Your Telegram Bot token
+      TELEGRAM_CHAT_ID=YOUR_TELEGRAM_CHAT_ID # Your Telegram Chat ID for alerts
+      ```
+    **Important:** `COVALENT_API_KEY` is crucial for data retrieval. Ensure it's valid and has sufficient quota.
+
+    c. **Install Python dependencies:**
+    ```bash
+    pip install -r requirements.txt
+    ```
+    *(If you don't have a `requirements.txt` in this directory, you'll need to create one by running `pip freeze > requirements.txt` in your activated virtual environment after installing all necessary packages like `fastapi`, `uvicorn`, `pandas`, `numpy`, `scikit-learn`, `torch`, `torch_geometric`, `joblib`, `httpx`, `python-dotenv`, `shap`, etc.)*
+
+    d. **Ensure Model Artifacts are in place:**
+    Verify that `preprocessing_pipeline.pkl`, `metadata.json`, and `fraud_gnn_weights.pth` are located in the `../Model/` directory relative to `app.py`. These files are essential for the ML model's operation.
+
+    e. **Run the FastAPI server:**
+    ```bash
+    uvicorn app:app --host 0.0.0.0 --port 8000 --reload
+    ```
+    The FastAPI backend will be accessible at `http://localhost:8000`.
+
+4.  **RAG Chatbot Setup (if separate service, refer to its own documentation)**
+
+    *(If your RAG Chatbot is a separate service, refer to its specific setup instructions. Ensure its API is running and accessible at the URL configured in `FE_Novaledger/.env.local`.)*
+
+## 🧑‍💻 Usage
+
+1.  **Start both the Frontend and Backend servers.**
+2.  Open your web browser and navigate to `http://localhost:3000`.
+3.  **Homepage:** Enter an Ethereum wallet address (e.g., `0x00009277775ac7d0d59eaad8fee3d10ac6c805e8`) into the search bar to initiate an analysis.
+4.  **Dashboard:** Navigate to the Dashboard page to see an overview of mock wallets with their risk assessments. Click "Detailed Analysis" for more information on each.
+5.  **Analyze Page:** View detailed risk predictions, key insights from the AI, granular feature statistics, and interactive graph visualizations for a specific address.
+6.  **Docs Page:** Explore the comprehensive documentation for a deeper understanding of the system.
+
+## 📸 Screenshots
+
+Screenshots of the main pages are available in the `public/` directory, illustrating the user interface and key functionalities:
+*   `AnalysisPage.png`
+*   `DashboardPage.png`
+*   `HomePage.jpg`
+*   `DocsPage.png`
+
+## ✨ Technologies Used
+
+*   **Frontend:** Next.js, React, TypeScript, Tailwind CSS, Lucide React Icons
+*   **Backend (FastAPI):** Python, FastAPI, Uvicorn, Pydantic, httpx
+*   **Machine Learning:** PyTorch, PyTorch Geometric, scikit-learn, joblib, pandas, numpy
+*   **Graph Visualization:** PyVis (integrated via FastAPI)
+*   **Blockchain Data:** CovalentHQ API
+*   **Notifications:** Telegram Bot API
+*   **Deployment:** Render.com (as per your `.env` for deployed services)
 
 ## 🤝 Contributing
 
-Contributions are welcome! Please read our contributing guidelines and submit pull requests for any enhancements.
+Contributions are welcome! Please feel free to open issues, submit bug reports, or propose new features via pull requests.
 
 ## 📄 License
 
-MIT License
-
-Copyright (c) 2025 FraudGraphML Team
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-
-## 👥 Authors
-
-## 👥 Technical Team & Contributors
-
-### Project Leadership & Architecture
-**Phan Duc Anh** (@pexa8335)
-- Project Lead & System Architect
-- Core responsibilities:
-  - Project management and team coordination
-  - Machine learning architecture design
-  - System architecture optimization
-  - ML model development and implementation
-  - Technical decision-making and roadmap planning
-
-### RAG Architecture Team
-**Nguyen Duc Phu**
-- RAG Architecture Engineer
-- Core responsibilities:
-  - RAG system architecture development
-  - Multi-agent system implementation
-  - Knowledge base optimization
-
-**Le Nu Khanh Linh**
-- RAG Systems Engineer
-- Core responsibilities:
-  - Multi-agent RAG coordination
-  - RAG performance optimization
-  - Knowledge retrieval systems
-
-### Development Team
-**Vo Van Quoc**
-- Full-Stack Development Engineer
-- Core responsibilities:
-  - Frontend development (TypeScript/React)
-  - Backend API implementation
-  - System integration
-  - UI/UX implementation
-
-**Tran Thai Tuong**
-- Graph Systems Engineer
-- Core responsibilities:
-  - Graph architecture design
-  - Network visualization implementation
-  - Real-time graph rendering
-  - Interactive visualization features
-
-### Contact
-For technical inquiries, please contact:
-- Project Lead: [@pexa8335](https://github.com/pexa8335)
-- Repository: [https://github.com/pexa8335/FraudGraphML](https://github.com/pexa8335/FraudGraphML)
-
-Last Updated: 2025-07-15
+This project is licensed under the MIT License. See the `LICENSE` file for details.
