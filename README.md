@@ -19,7 +19,7 @@ NovaLedger is a cutting-edge blockchain security platform that leverages **Graph
 - **🧠 Advanced GCN Model**: Graph Convolutional Network trained on Ethereum fraud detection dataset achieving **95% accuracy**
 - **🔍 Explainable AI**: Transparent risk assessment with feature importance explanations
 - **🤖 Multi-Agent RAG**: Intelligent chatbot with API integration and web search capabilities
-- **📊 Graph Visualization**: Network relationship mapping for transaction analysis
+- **📊 Interactive Graph Visualization**: Network relationship mapping for transaction analysis
 - **💼 Portfolio Management**: Automated wallet monitoring with real-time fraud alerts
 - **⚡ Real-time Processing**: Live on-chain data analysis via Covalent API
 
@@ -81,7 +81,7 @@ Final Metrics:
 - **Knowledge Base**: Ethereum-specific documentation and fraud patterns
 - **Intelligent Responses**: Context-aware assistance for users
 
-### 4. **📊 Graph Visualization**
+### 4. **📊 Interactive Graph Visualization**
 - **Network Mapping**: Visual representation of wallet relationships
 - **Transaction Flows**: Interactive exploration of blockchain interactions
 - **Risk Propagation**: Identification of fraud spread patterns
@@ -96,6 +96,13 @@ Final Metrics:
 - **Real-time Alerts**: Telegram notifications for fraud detection
 - **Risk Assessment**: Continuous portfolio health monitoring
 - **Historical Analysis**: Performance tracking and trend analysis
+
+### 6. **📱 Telegram Integration & Real-time Alerts**
+![Telegram Integration](./FE_Novaledger/public/Telegram.jpg)
+- **Instant Notifications**: Real-time fraud alerts via Telegram bot
+- **Smart Monitoring**: Automated wallet surveillance with immediate response
+- **Customizable Alerts**: Configurable notification preferences
+- **Secure Communication**: Encrypted messaging for sensitive alerts
 
 ---
 
