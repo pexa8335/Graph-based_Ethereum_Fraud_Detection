@@ -33,7 +33,6 @@ export async function POST(request: Request) {
     const analyzeData = await analyzeResponse.json();
     if (!analyzeResponse.ok) {
       console.error("[API Route] Lỗi từ /analyze:", analyzeData);
-      throw new Error(analyzeData.detail || "Lỗi từ dịch vụ dự đoán AI");
     }
     if (
       !analyzeData.address ||
